@@ -39,6 +39,7 @@ Certaines fonctionnalitées ont aussi identifiées comme bénéfiques à ajouter
 D’autres fonctionnalités pourraient êtres proposées par les étudiants ou membres du BDE pendant la période active du projet.
 
 ### Technologies et prérequis
-Langages : Typescript, HTML, CSS
-Framework : Next, React
-Outils : Docker, Jest, Cypress, Git(Hub)
+
+- Langages : Typescript, HTML, CSS
+- Framework : Next, React
+- Outils : Docker, Jest, Cypress, Git(Hub)
