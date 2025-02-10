@@ -8,7 +8,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr">
-      <body>
+      <body className={"bg-charleston-green text-foreground-bright-gray"}>
         {children}
       </body>
     </html>

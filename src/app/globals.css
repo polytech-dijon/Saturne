@@ -1,16 +1,16 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@theme {
+  --color-charleston-green: #222831;
+  --color-steel-blue: #3f72af;
+  --color-space-cadet: #112d4e;
+  --color-arsenic: #393e46;
+  --color-azureish-white: #dbe2ef;
+  --color-cultured: #f9f7f7;
+  --color-foreground-bright-gray: #eee;
+}
 
 :root {
-  --background-charleston-green: #222831;
-  --steel-blue: #3f72af;
-  --space-cadet: #112d4e;
-  --arsenic: #393e46;
-  --azureish-white: #dbe2ef;
-  --cultured: #f9f7f7;
-  --foreground-bright-gray: #eee;
-
   /* --noise-image: url('chemin/vers/image-bruit.jpg'); */
 
   --font-logo: "Montserrat", sans-serif;
@@ -47,7 +47,7 @@
 /* Logo */
 
 .logo {
-  font-family: var(--font-logo);
+  font-family: var(--font-logo), sans-serif;
   font-weight: var(--font-weight-logo);
   font-size: var(--font-size-logo);
   line-height: var(--line-height-loose);
@@ -57,7 +57,7 @@
 /* Subtitle */
 
 .subtitle {
-  font-family: var(--font-title);
+  font-family: var(--font-title), sans-serif;
   font-weight: var(--font-weight-extra-light);
   font-size: var(--font-size-subtitle);
   line-height: var(--line-height-normal);
@@ -67,7 +67,7 @@
 /* Titles */
 
 .title-1 {
-  font-family: var(--font-title);
+  font-family: var(--font-title), sans-serif;
   font-weight: var(--font-weight-extra-light);
   font-size: var(--font-size-title-1);
   line-height: var(--line-height-normal);
@@ -75,7 +75,7 @@
 }
 
 .title-2 {
-  font-family: var(--font-title);
+  font-family: var(--font-title), sans-serif;
   font-weight: var(--font-weight-extra-light);
   font-size: var(--font-size-title-2);
   line-height: var(--line-height-normal);
@@ -83,7 +83,7 @@
 }
 
 .title-3 {
-  font-family: var(--font-title);
+  font-family: var(--font-title), sans-serif;
   font-weight: var(--font-weight-extra-light);
   font-size: var(--font-size-title-3);
   line-height: var(--line-height-normal);
@@ -91,7 +91,7 @@
 }
 
 .title-4 {
-  font-family: var(--font-title);
+  font-family: var(--font-title), sans-serif;
   font-weight: var(--font-weight-extra-light);
   font-size: var(--font-size-title-4);
   line-height: var(--line-height-normal);
@@ -101,7 +101,7 @@
 /* Body Text */
 
 .body-main {
-  font-family: var(--font-body);
+  font-family: var(--font-body), sans-serif;
   font-weight: var(--font-weight-regular);
   font-size: var(--font-size-body);
   line-height: var(--line-height-loose);
@@ -109,7 +109,7 @@
 }
 
 .body-secondary {
-  font-family: var(--font-body);
+  font-family: var(--font-body), sans-serif;
   font-weight: var(--font-weight-regular);
   font-size: var(--font-size-secondary-body);
   line-height: var(--line-height-loose);
@@ -119,7 +119,7 @@
 /* Links and CTA */
 
 .cta {
-  font-family: var(--font-body);
+  font-family: var(--font-body), sans-serif;
   font-weight: var(--font-weight-semi-bold);
   font-size: var(--font-size-body);
   line-height: var(--line-height-loose);
@@ -131,7 +131,7 @@
 /* Captions */
 
 .caption {
-  font-family: var(--font-body);
+  font-family: var(--font-body), sans-serif;
   font-weight: var(--font-weight-regular);
   font-size: var(--font-size-caption);
   line-height: var(--line-height-loose);
@@ -141,7 +141,7 @@
 /* Buttons */
 
 .button {
-  font-family: var(--font-body);
+  font-family: var(--font-body), sans-serif;
   font-weight: var(--font-weight-semi-bold);
   font-size: var(--font-size-button);
   line-height: var(--line-height-loose);
@@ -153,15 +153,9 @@
 /* Labels */
 
 .label {
-  font-family: var(--font-body);
+  font-family: var(--font-body), sans-serif;
   font-weight: var(--font-weight-semi-bold);
   font-size: var(--font-size-label);
   line-height: var(--line-height-loose);
   letter-spacing: 0;
-}
-
-body {
-  color: var(--foreground-bright-gray);
-  background: var(--background-charleston-green);
-  font-family: Arial, Helvetica, sans-serif;
 }
