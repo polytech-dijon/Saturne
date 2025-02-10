@@ -16,10 +16,7 @@ PolyBytes utilise aussi librement ce service pour y faire sa propre communicatio
 
 ### Objectif
 
-Dans le cadre de la reprise des différents projets, les membres de PolyBytes ont décidé d’améliorer
-les aspects qualités et DevOps de leurs différents produits. Plusieurs projets de refontes partiels ou
-complets seront ainsi entrepris dans ce sens. Le produit Mercure,
-servant à l’affichage est sources de plusieurs problématiques :
+Dans le cadre de la reprise des différents projets, les membres de PolyBytes ont décidé d’améliorer les aspects qualités et DevOps de leurs différents produits. Plusieurs projets de refontes partiels ou complets seront ainsi entrepris dans ce sens. Le produit Mercure, servant à l’affichage est sources de plusieurs problématiques :
 
 - Pas de framework : Code réalisé en javascript vanilla
 - Pas d’ORM : Les migrations sont pénibles à réaliser
@@ -34,13 +31,9 @@ Ce projet vise à résoudre ces problématiques telles que :
 - Nouvelles maquettes correspondant à la charte graphique de PolyBytes
 - Ajout de framework de tests unitaire (Jest) et End2End (Cypress) dans une démarche de Test Driven Development
 
-Le choix des technologies est lié à la volonté de limiter la dette technique en réduisant le nombre de technologies
-à maîtriser pour travailler sur les différents produits de PolyBytes. Une partie du projet sera gérée par le tuteur
-du club assigné au projet, notamment sur la mise en place d'environnements de développement, de test
-et de production et toutes les étapes à automatiser.
+Le choix des technologies est lié à la volonté de limiter la dette technique en réduisant le nombre de technologies à maîtriser pour travailler sur les différents produits de PolyBytes. Une partie du projet sera gérée par le tuteur du club assigné au projet, notamment sur la mise en place d'environnements de développement, de test et de production et toutes les étapes à automatiser.
 
-Aussi, on passera de trois sous projets à une architecture simplifiée en un projet ou les parties administrations
-seront protégées par un mot de passe.
+Aussi, on passera de trois sous projets à une architecture simplifiée en un projet ou les parties administrations seront protégées par un mot de passe.
 
 Certaines fonctionnalités ont aussi été identifiées comme bénéfiques à ajouter, tel que :
 
@@ -50,8 +43,7 @@ Certaines fonctionnalités ont aussi été identifiées comme bénéfiques à aj
 - Limitation des formats de fichiers (taille et type de fichier)
 - Système de comptes afin de mieux cloisonner l'application
 
-D’autres fonctionnalités pourraient être proposées par les étudiants ou membres du BDE pendant
-la période active du projet.
+D’autres fonctionnalités pourraient être proposées par les étudiants ou membres du BDE pendant la période active du projet.
 
 ### Technologies et prérequis
 
