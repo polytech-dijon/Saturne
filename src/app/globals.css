@@ -1,0 +1,161 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-charleston-green: #222831;
+  --color-steel-blue: #3f72af;
+  --color-space-cadet: #112d4e;
+  --color-arsenic: #393e46;
+  --color-azureish-white: #dbe2ef;
+  --color-cultured: #f9f7f7;
+  --color-foreground-bright-gray: #eee;
+}
+
+:root {
+  /* --noise-image: url('chemin/vers/image-bruit.jpg'); */
+
+  --font-logo: "Montserrat", sans-serif;
+  --font-title: "Inter", sans-serif;
+  --font-body: "IBM Plex Sans", sans-serif;
+
+  /* Font Weights */
+
+  --font-weight-logo: 800; /* ExtraBold */
+  --font-weight-extra-light: 200; /* Extra Light */
+  --font-weight-regular: 400; /* Regular */
+  --font-weight-semi-bold: 600; /* SemiBold */
+
+  /* Line Heights */
+
+  --line-height-loose: 140%; /* 1.4 */
+  --line-height-normal: 105%; /* 1.05 */
+
+  /* Font Sizes */
+
+  --font-size-logo: 64px;
+  --font-size-subtitle: 24px;
+  --font-size-title-1: 48px;
+  --font-size-title-2: 36px;
+  --font-size-title-3: 28px;
+  --font-size-title-4: 24px;
+  --font-size-body: 16px;
+  --font-size-secondary-body: 14px;
+  --font-size-caption: 12px;
+  --font-size-button: 14px;
+  --font-size-label: 10px;
+}
+
+/* Logo */
+
+.logo {
+  font-family: var(--font-logo), sans-serif;
+  font-weight: var(--font-weight-logo);
+  font-size: var(--font-size-logo);
+  line-height: var(--line-height-loose);
+  letter-spacing: 0;
+}
+
+/* Subtitle */
+
+.subtitle {
+  font-family: var(--font-title), sans-serif;
+  font-weight: var(--font-weight-extra-light);
+  font-size: var(--font-size-subtitle);
+  line-height: var(--line-height-normal);
+  letter-spacing: 0;
+}
+
+/* Titles */
+
+.title-1 {
+  font-family: var(--font-title), sans-serif;
+  font-weight: var(--font-weight-extra-light);
+  font-size: var(--font-size-title-1);
+  line-height: var(--line-height-normal);
+  letter-spacing: 0;
+}
+
+.title-2 {
+  font-family: var(--font-title), sans-serif;
+  font-weight: var(--font-weight-extra-light);
+  font-size: var(--font-size-title-2);
+  line-height: var(--line-height-normal);
+  letter-spacing: 0;
+}
+
+.title-3 {
+  font-family: var(--font-title), sans-serif;
+  font-weight: var(--font-weight-extra-light);
+  font-size: var(--font-size-title-3);
+  line-height: var(--line-height-normal);
+  letter-spacing: 0;
+}
+
+.title-4 {
+  font-family: var(--font-title), sans-serif;
+  font-weight: var(--font-weight-extra-light);
+  font-size: var(--font-size-title-4);
+  line-height: var(--line-height-normal);
+  letter-spacing: 0;
+}
+
+/* Body Text */
+
+.body-main {
+  font-family: var(--font-body), sans-serif;
+  font-weight: var(--font-weight-regular);
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-loose);
+  letter-spacing: 0;
+}
+
+.body-secondary {
+  font-family: var(--font-body), sans-serif;
+  font-weight: var(--font-weight-regular);
+  font-size: var(--font-size-secondary-body);
+  line-height: var(--line-height-loose);
+  letter-spacing: 0;
+}
+
+/* Links and CTA */
+
+.cta {
+  font-family: var(--font-body), sans-serif;
+  font-weight: var(--font-weight-semi-bold);
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-loose);
+  letter-spacing: 0;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+/* Captions */
+
+.caption {
+  font-family: var(--font-body), sans-serif;
+  font-weight: var(--font-weight-regular);
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-loose);
+  letter-spacing: 0;
+}
+
+/* Buttons */
+
+.button {
+  font-family: var(--font-body), sans-serif;
+  font-weight: var(--font-weight-semi-bold);
+  font-size: var(--font-size-button);
+  line-height: var(--line-height-loose);
+  letter-spacing: 0;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+/* Labels */
+
+.label {
+  font-family: var(--font-body), sans-serif;
+  font-weight: var(--font-weight-semi-bold);
+  font-size: var(--font-size-label);
+  line-height: var(--line-height-loose);
+  letter-spacing: 0;
+}
