@@ -1,0 +1,9 @@
+services:
+  app:
+    container_name: saturne_prod
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '3000:3000'
+    restart: unless-stopped
