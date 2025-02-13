@@ -1,6 +1,6 @@
 services:
   app:
-    container_name: saturne_dev
+    container_name: saturne-dev
     build:
       context: .
       dockerfile: Dockerfile.dev
@@ -12,3 +12,26 @@ services:
     environment:
       NODE_ENV: development
       NEXT_TELEMETRY_DISABLED: 1
+    networks:
+      - saturne-network
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:latest
+    env_file: .env.local
+    container_name: postgres-dev
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - saturne-network
+
+networks:
+  saturne-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local

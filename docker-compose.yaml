@@ -1,6 +1,6 @@
 services:
   app:
-    container_name: saturne_prod
+    container_name: saturne-prod
     build:
       context: .
       dockerfile: Dockerfile
