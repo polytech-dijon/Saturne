@@ -1,6 +1,7 @@
 services:
   app:
     container_name: saturne-dev
+    env_file: .env.local
     build:
       context: .
       dockerfile: Dockerfile.dev
@@ -18,9 +19,9 @@ services:
       - postgres
 
   postgres:
+    container_name: postgres-dev
     image: postgres:latest
     env_file: .env.local
-    container_name: postgres-dev
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
