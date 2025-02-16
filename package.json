@@ -9,11 +9,12 @@
     "lint": "next lint",
     "test": "jest",
     "test:watch": "jest --watch",
-    "docker:dev": "docker-compose -f docker-compose.dev.yaml up",
-    "docker:dev:build": "docker-compose -f docker-compose.dev.yaml up --build",
+    "docker:dev": "docker-compose -f docker-compose.dev.yaml --env-file .env.local up",
+    "docker:dev:build": "docker-compose -f docker-compose.dev.yaml --env-file .env.local up --build",
     "docker:prod": "docker-compose -f docker-compose.yaml up --build",
-    "db:deploy": "npx prisma migrate deploy",
-    "db:migrate": "docker exec saturne-dev npx prisma migrate dev"
+    "db:deploy": "prisma migrate deploy",
+    "db:migrate": "dotenv -e .env.local -- prisma migrate dev",
+    "db:studio": "dotenv -e .env.local -- prisma studio",
   },
   "dependencies": {
     "next": "15.1.3",
