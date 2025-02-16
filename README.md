@@ -45,6 +45,23 @@ Certaines fonctionnalités ont aussi été identifiées comme bénéfiques à aj
 
 D’autres fonctionnalités pourraient être proposées par les étudiants ou membres du BDE pendant la période active du projet.
 
+## Contributeurs
+
+<div align="center">
+	<table>
+		<tr>
+			<td><img width="100" src="https://avatars.githubusercontent.com/u/71908560" alt="Arno BIDET" title="Arno BIDET"/></td>
+			<td><img width="100" src="https://avatars.githubusercontent.com/u/122306936" alt="Raphaël Asdrubal" title="Raphaël Asdrubal"/></td>
+			<td><img width="100" src="https://avatars.githubusercontent.com/u/131671439" alt="Victor Olivier" title="Victor Olivier"/></td>
+		</tr>
+        <tr>
+			<td style="text-align:center;"><a href="https://github.com/ArnoBidet">Arno Bidet</a></td>
+			<td style="text-align:center;"><a href="https://github.com/Horizon-NTH">Raphaël Asdrubal</a></td>
+			<td style="text-align:center;"><a href="https://github.com/Victor3699">Victor Olivier</a></td>
+		</tr>
+	</table>
+</div>
+
 ### Technologies et prérequis
 
 - Langages : Typescript, HTML, CSS
