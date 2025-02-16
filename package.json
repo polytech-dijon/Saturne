@@ -2,6 +2,25 @@
   "name": "saturne",
   "version": "0.1.0",
   "private": true,
+  "author": {
+    "name": "PolyBytes",
+    "email": "dev.polytechdijon@gmail.com"
+  },
+  "contributors": [
+    {
+      "name": "Arno BIDET",
+      "url": "https://www.linkedin.com/in/arno-bidet/",
+      "email": "arno.bidet479@gmail.com"
+    },
+    {
+      "name": "Raphaël ASDRUBAL",
+      "email": "bjr.asd@gmail.com"
+    },
+    {
+      "name": "Victor OLIVIER",
+      "email": "victor.olivier3699@gmail.com"
+    }
+  ],
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
