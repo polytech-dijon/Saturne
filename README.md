@@ -103,6 +103,3 @@ D’autres fonctionnalités pourraient être proposées par les étudiants ou me
     </td>
   <tr>
 </table>
-
-
-
