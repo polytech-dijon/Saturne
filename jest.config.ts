@@ -6,7 +6,7 @@ const createJestConfig = nextJest({
 });
 
 const customJestConfig: Config = {
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts', '<rootDir>/src/lib/mock-prisma.ts'],
   testEnvironment: 'jsdom',
   clearMocks: true,
   collectCoverage: true,
