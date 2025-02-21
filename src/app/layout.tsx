@@ -1,5 +1,5 @@
-import "./globals.css";
-import React from "react";
+import '@/app/globals.css';
+import React from 'react';
 
 export default function RootLayout({
                                      children,
@@ -8,7 +8,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr">
-      <body className={"bg-charleston-green text-foreground-bright-gray"}>
+      <body className={'bg-charleston-green text-foreground-bright-gray'}>
         {children}
       </body>
     </html>
