@@ -39,6 +39,7 @@ describe('GET /api/users', () => {
   });
 
   it('should handle errors appropriately', async () => {
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
     prismaMock.user.findMany.mockRejectedValue(new Error('Database error'));
 
     const response = await GET();
@@ -48,5 +49,6 @@ describe('GET /api/users', () => {
     expect(data).toEqual({ error: 'Failed to fetch users' });
     expect(response.status).toBe(500);
     expect(prismaMock.user.findMany).toHaveBeenCalled();
+    consoleSpy.mockRestore();
   });
 });
