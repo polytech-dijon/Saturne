@@ -6,4 +6,36 @@ services:
       dockerfile: Dockerfile
     ports:
       - '3000:3000'
+    environment:
+      NODE_ENV: production
+      NEXT_TELEMETRY_DISABLED: 1
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
     restart: unless-stopped
+    networks:
+      - saturne-network-prod
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    container_name: postgres-prod
+    image: postgres:15-alpine
+    env_file: .env
+    volumes:
+      - saturne-postgres-data-prod:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - saturne-network-prod
+
+networks:
+  saturne-network-prod:
+    driver: bridge
+
+volumes:
+  saturne-postgres-data-prod:
+    driver: local

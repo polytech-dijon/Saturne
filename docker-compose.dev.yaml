@@ -15,25 +15,25 @@ services:
       NEXT_TELEMETRY_DISABLED: 1
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
     networks:
-      - saturne-network
+      - saturne-network-dev
     depends_on:
       - postgres
 
   postgres:
     container_name: postgres-dev
-    image: postgres:latest
+    image: postgres:15-alpine
     env_file: .env.local
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - saturne-postgres-data-dev:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     networks:
-      - saturne-network
+      - saturne-network-dev
 
 networks:
-  saturne-network:
+  saturne-network-dev:
     driver: bridge
 
 volumes:
-  postgres_data:
+  saturne-postgres-data-dev:
     driver: local
