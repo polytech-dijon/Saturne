@@ -45,8 +45,61 @@ Certaines fonctionnalités ont aussi été identifiées comme bénéfiques à aj
 
 D’autres fonctionnalités pourraient être proposées par les étudiants ou membres du BDE pendant la période active du projet.
 
-### Technologies et prérequis
+## Contributeurs
 
-- Langages : Typescript, HTML, CSS
-- Framework : Next, React
-- Outils : Docker, Jest, Cypress, Git(Hub)
+<div align="center">
+	<table>
+		<tr>
+			<td><img width="100" src="https://avatars.githubusercontent.com/u/71908560" alt="Arno BIDET" title="Arno BIDET"/></td>
+			<td><img width="100" src="https://avatars.githubusercontent.com/u/122306936" alt="Raphaël Asdrubal" title="Raphaël Asdrubal"/></td>
+			<td><img width="100" src="https://avatars.githubusercontent.com/u/131671439" alt="Victor Olivier" title="Victor Olivier"/></td>
+		</tr>
+        <tr>
+			<td style="text-align:center;"><a href="https://github.com/ArnoBidet">Arno Bidet</a></td>
+			<td style="text-align:center;"><a href="https://github.com/Horizon-NTH">Raphaël Asdrubal</a></td>
+			<td style="text-align:center;"><a href="https://github.com/Victor3699">Victor Olivier</a></td>
+		</tr>
+	</table>
+</div>
+
+## Technologies et prérequis
+
+<table>
+  <tr>
+    <th style="text-align:center">Langages</th>
+  </tr>
+  <tr>
+    <td>
+      <img height="50" src="https://raw.githubusercontent.com/marwin1991/profile-technology-icons/refs/heads/main/icons/html.png" alt="HTML" title="HTML"/>
+      <img height="50" src="https://raw.githubusercontent.com/marwin1991/profile-technology-icons/refs/heads/main/icons/css.png" alt="CSS" title="CSS"/>
+      <img height="50" src="https://raw.githubusercontent.com/marwin1991/profile-technology-icons/refs/heads/main/icons/typescript.png" alt="TypeScript" title="TypeScript"/>
+    </td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <th style="text-align:center">Frameworks</th>
+  </tr>
+  <tr>
+    <td>
+      <img height="50" src="https://raw.githubusercontent.com/marwin1991/profile-technology-icons/refs/heads/main/icons/react.png" alt="React" title="React"/>
+      <img height="50" src="https://raw.githubusercontent.com/marwin1991/profile-technology-icons/refs/heads/main/icons/next_js.png" alt="Next.js" title="Next.js"/>
+      <img height="50" src="https://cdn.freelogovectors.net/wp-content/uploads/2022/01/prisma_logo-freelogovectors.net_.png" alt="Prisma" title="Prisma"/>
+    </td>
+  <tr>
+</table>
+
+<table>
+  <tr>
+      <th style="text-align:center">Outils</th>
+  </tr>
+  <tr>
+    <td>
+      <img width="50" src="https://raw.githubusercontent.com/marwin1991/profile-technology-icons/refs/heads/main/icons/github.png" alt="GitHub" title="GitHub"/>
+      <img width="50" src="https://raw.githubusercontent.com/marwin1991/profile-technology-icons/refs/heads/main/icons/figma.png" alt="Figma" title="Figma"/>
+      <img width="50" src="https://raw.githubusercontent.com/marwin1991/profile-technology-icons/refs/heads/main/icons/jest.png" alt="Jest" title="Jest"/>
+      <img width="50" src="https://raw.githubusercontent.com/marwin1991/profile-technology-icons/refs/heads/main/icons/docker.png" alt="Docker" title="Docker"/>
+    </td>
+  <tr>
+</table>
