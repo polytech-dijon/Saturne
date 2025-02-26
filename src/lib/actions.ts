@@ -9,13 +9,13 @@ type ApiPosterResponse = {
   }[];
 };
 
-type Poster = {
+export type Poster = {
   id: number;
   image: string;
 }
 
-// Temporary function to fetch posters from the old website's API for testing purposes.
-// TODO Will be replaced once the new API is ready.
+// Function to fetch posters from the old website's API for testing purposes.
+// TODO update once the new API is ready.
 export async function getPosters(): Promise<Poster[]> {
   const postersJson = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/poster`);
   if (!postersJson.ok) {
