@@ -1,16 +1,11 @@
-import Image from 'next/image';
+import { getPosters } from '@/lib/actions';
+import PosterCarousel from '@/components/PosterCarousel';
 
-export default function Home() {
+export default async function Home() {
+  const posters = await getPosters();
   return (
-    <div
-      className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <h1 className="text-4xl font-bold text-center">Hello, World!</h1>
-      <Image
-        src="/saturne.png"
-        alt="Saturne logo"
-        width={300}
-        height={300}
-      />
+    <div className="min-h-screen flex justify-center items-center">
+      <PosterCarousel posters={posters} />
     </div>
   );
 }
