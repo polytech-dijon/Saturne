@@ -11,6 +11,7 @@ type ApiPosterResponse = {
 
 export type Poster = {
   id: number;
+  title: string;
   image: string;
 }
 
@@ -27,6 +28,7 @@ export async function getPosters(): Promise<Poster[]> {
   }
   return json.data.map((poster) => ({
     id: poster.id,
+    title: poster.title,
     image: `${process.env.NEXT_PUBLIC_API_URL}/uploads/` + poster.image,
   }));
 }
