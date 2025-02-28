@@ -6,7 +6,9 @@ export default async function Home() {
   return (
     <div className="min-h-screen flex justify-between items-center flex-col">
       <div className="border-amber-950 border-4 w-full h-[20vh] flex items-center justify-center">Divia</div>
-      <PosterCarousel posters={posters} />
+      <div className="w-full h-[70vh]">
+        <PosterCarousel posters={posters} />
+      </div>
       <div className="border-amber-950 border-4 w-full h-[10vh] flex items-center justify-around">
         <p>Logo</p>
         <p>Time</p>
