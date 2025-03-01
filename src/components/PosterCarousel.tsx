@@ -22,9 +22,11 @@ export default function PosterCarousel({ posters }: { posters: Poster[] }) {
       selected.style.zIndex = '1';
       selected.style.transform = 'scale(2)';
 
-      scaleOutTimer = setTimeout(() => {
-        selected.style.transform = '';
-      }, posterDuration - transitionDuration);
+      if (posters.length > 1) {
+        scaleOutTimer = setTimeout(() => {
+          selected.style.transform = '';
+        }, posterDuration - transitionDuration);
+      }
     };
     scale();
 
@@ -55,7 +57,7 @@ export default function PosterCarousel({ posters }: { posters: Poster[] }) {
       clearTimeout(scaleTimer);
       clearTimeout(scaleOutTimer);
     };
-  }, [api]);
+  }, [api, posters.length]);
 
   return (
     <Carousel
@@ -67,15 +69,16 @@ export default function PosterCarousel({ posters }: { posters: Poster[] }) {
       plugins={[
         Autoplay({
           delay: posterDuration + transitionDuration,
-          stopOnInteraction: true,
+          stopOnInteraction: false,
         }),
       ]}
       setApi={setApi}>
       <CarouselContent className="-ml-[10/3vw] items-center w-[100vw] h-[60vh]">
         {posters.map((poster) => (
-          <CarouselItem key={poster.id} className="basis-1/3">
+          <CarouselItem key={poster.id}
+                        className={`${posters.length > 4 ? 'basis-1/3' : (posters.length > 2 ? 'basis-1/2' : 'basis-full')}`}>
             <div
-              className="pl-[5/3vw] transition-transform duration-1000 ease-[ease] z-[-1] flex items-center justify-center">
+              className="relative pl-[5/3vw] transition-transform duration-1000 ease-[ease] z-[-1] flex items-center justify-center">
               <img src={poster.image} alt={poster.title} className="h-[30vh] w-auto object-contain rounded-lg" />
             </div>
           </CarouselItem>
