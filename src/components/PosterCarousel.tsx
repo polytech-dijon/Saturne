@@ -15,16 +15,18 @@ export default function PosterCarousel({ posters }: { posters: Poster[] }) {
     let scaleTimer: NodeJS.Timeout;
     let scaleOutTimer: NodeJS.Timeout;
     const scale = () => {
-      const previous = api.slideNodes()[api.previousScrollSnap()].firstChild as HTMLElement;
-      previous.style.zIndex = '-1';
+      api.slideNodes().forEach((slide: HTMLElement) => {
+        if (slide.firstChild) (slide.firstChild as HTMLElement).style.transform = '';
+        slide.style.zIndex = '0';
+      });
 
-      const selected = api.slideNodes()[api.selectedScrollSnap()].firstChild as HTMLElement;
+      const selected = api.slideNodes()[api.selectedScrollSnap()] as HTMLElement;
       selected.style.zIndex = '1';
-      selected.style.transform = 'scale(2)';
+      if (selected.firstChild) (selected.firstChild as HTMLElement).style.transform = 'scale(2)';
 
       if (posters.length > 1) {
         scaleOutTimer = setTimeout(() => {
-          selected.style.transform = '';
+          if (selected.firstChild) (selected.firstChild as HTMLElement).style.transform = '';
         }, posterDuration - transitionDuration);
       }
     };
@@ -35,18 +37,24 @@ export default function PosterCarousel({ posters }: { posters: Poster[] }) {
     };
     api.on('autoplay:timerset', handleAutoPlay);
 
+    let resetZIndexTimer: NodeJS.Timeout;
     const handleScroll = () => {
-      if (!api.scrollProgress()) return;
       clearTimeout(scaleTimer);
       clearTimeout(scaleOutTimer);
-      api.slideNodes().forEach((slide) => {
-        (slide.firstChild as HTMLElement).style.transform = '';
+      api.slideNodes().forEach((slide: HTMLElement) => {
+        if (slide.firstChild) (slide.firstChild as HTMLElement).style.transform = '';
       });
+      resetZIndexTimer = setTimeout(() => {
+        api.slideNodes().forEach((slide: HTMLElement) => {
+          slide.style.zIndex = '0';
+        });
+      }, transitionDuration);
     };
     api.on('pointerDown', handleScroll);
 
     const handleScrollEnd = () => {
       scale();
+      clearTimeout(resetZIndexTimer);
     };
     api.on('pointerUp', handleScrollEnd);
 
@@ -56,6 +64,7 @@ export default function PosterCarousel({ posters }: { posters: Poster[] }) {
       api.off('pointerUp', handleScrollEnd);
       clearTimeout(scaleTimer);
       clearTimeout(scaleOutTimer);
+      clearTimeout(resetZIndexTimer);
     };
   }, [api, posters.length]);
 
@@ -78,8 +87,8 @@ export default function PosterCarousel({ posters }: { posters: Poster[] }) {
           <CarouselItem key={poster.id}
                         className={`${posters.length > 4 ? 'basis-1/3' : (posters.length > 2 ? 'basis-1/2' : 'basis-full')}`}>
             <div
-              className="relative pl-[5/3vw] transition-transform duration-1000 ease-[ease] z-[-1] flex items-center justify-center">
-              <img src={poster.image} alt={poster.title} className="h-[30vh] w-auto object-contain rounded-lg" />
+              className="relative pl-[5/3vw] transition-transform duration-1000 ease-[ease] flex items-center justify-center">
+              <img src={poster.image} alt={poster.title} className="h-[30vh] w-auto object-cover rounded-lg" />
             </div>
           </CarouselItem>
         ))}
