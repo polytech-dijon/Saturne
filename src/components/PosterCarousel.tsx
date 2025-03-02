@@ -82,13 +82,13 @@ export default function PosterCarousel({ posters }: { posters: Poster[] }) {
         }),
       ]}
       setApi={setApi}>
-      <CarouselContent className="-ml-[10/3vw] items-center w-[100vw] h-[60vh]">
+      <CarouselContent className="-ml-0 items-center w-[100vw] h-[60vh]">
         {posters.map((poster) => (
           <CarouselItem key={poster.id}
-                        className={`${posters.length > 4 ? 'basis-1/3' : (posters.length > 2 ? 'basis-1/2' : 'basis-full')}`}>
+                        className={`pl-4 pr-4 ${posters.length > 4 ? 'basis-1/3' : (posters.length > 2 ? 'basis-1/2' : 'basis-full')}`}>
             <div
-              className="relative pl-[5/3vw] transition-transform duration-1000 ease-[ease] flex items-center justify-center">
-              <img src={poster.image} alt={poster.title} className="h-[30vh] w-auto object-cover rounded-lg" />
+              className="relative transition-transform duration-1000 ease-[ease] flex items-center justify-center">
+              <img src={poster.image} alt={poster.title} className="h-[30vh] w-auto object-center rounded-lg" />
             </div>
           </CarouselItem>
         ))}

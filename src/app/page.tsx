@@ -1,5 +1,6 @@
 import { getPosters } from '@/lib/actions';
 import PosterCarousel from '@/components/PosterCarousel';
+import HomeFooter from '@/components/HomeFooter';
 
 export default async function Home() {
   const posters = await getPosters();
@@ -9,10 +10,8 @@ export default async function Home() {
       <div className="w-full h-[70vh]">
         <PosterCarousel posters={posters} />
       </div>
-      <div className="border-amber-950 border-4 w-full h-[10vh] flex items-center justify-around">
-        <p>Logo</p>
-        <p>Time</p>
-        <p>Creator</p>
+      <div className="w-full h-[10vh]">
+        <HomeFooter />
       </div>
     </div>
   );
