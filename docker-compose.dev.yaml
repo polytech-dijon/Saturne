@@ -1,14 +1,31 @@
 services:
   app:
-    container_name: saturne_dev
+    container_name: saturne-dev
     build:
       context: .
       dockerfile: Dockerfile.dev
+    working_dir: /app
+    env_file: .env.local
     ports:
       - "3000:3000"
     volumes:
       - .:/app
-      - /app/node_modules
     environment:
       NODE_ENV: development
       NEXT_TELEMETRY_DISABLED: 1
+    command: npm run dev
+    depends_on:
+      - postgres
+
+  postgres:
+    container_name: postgres-dev
+    image: postgres:15-alpine
+    env_file: .env.local
+    volumes:
+      - saturne-postgres-data-dev:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  saturne-postgres-data-dev:
+    driver: local

@@ -1,17 +1,18 @@
-import type { Config } from "jest";
-import nextJest from "next/jest";
+import type { Config } from 'jest';
+import nextJest from 'next/jest';
 
 const createJestConfig = nextJest({
   dir: './',
 });
 
 const customJestConfig: Config = {
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts', '<rootDir>/src/lib/mock-prisma.ts'],
   testEnvironment: 'jsdom',
   clearMocks: true,
   collectCoverage: true,
-  coverageDirectory: "coverage",
-  coverageProvider: "v8"
+  collectCoverageFrom: ['src/**/*.{ts,tsx}'],
+  coverageDirectory: 'coverage',
+  coverageProvider: 'v8',
 };
 
 export default createJestConfig(customJestConfig);
