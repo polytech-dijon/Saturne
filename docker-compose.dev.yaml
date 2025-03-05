@@ -13,7 +13,7 @@ services:
     environment:
       NODE_ENV: development
       NEXT_TELEMETRY_DISABLED: 1
-    command: sh -c "npm install && npx prisma generate && npm run dev"
+    command: npm run dev
     depends_on:
       - postgres
 
