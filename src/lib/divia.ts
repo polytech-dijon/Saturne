@@ -14,7 +14,6 @@ export type Stop = {
 
 export type Arrival = {
   text: string;
-  timestamp: number;
 };
 
 export type DiviaData = {
@@ -56,7 +55,6 @@ export async function fetchDiviaData(): Promise<DiviaData> {
     const serializableArrivals: Arrival[][] = results.map(arrivals =>
       arrivals.map(arrival => ({
         text: arrival.text,
-        timestamp: arrival.date.getTime(),
       })),
     );
 

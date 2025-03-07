@@ -3,16 +3,22 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Arrival, DiviaData, fetchDiviaData, Stop } from '@/lib/divia';
 
-function formatDate(timestamp: number): string {
-  if (!timestamp || isNaN(timestamp)) {
-    return 'N/A';
-  }
+function formatDate(text: string): string {
+  if (!text || text.length !== 5 || text[2] !== ':') return 'N/A';
 
-  const delay = timestamp - Date.now();
-  const minutes = Math.floor(delay / 1000 / 60);
+  const [arrivalHours, arrivalMinutes] = text.split(':').map(Number);
+  const now = new Date();
+  const currentHours = now.getHours() === 0 ? 24 : now.getHours();
+  const currentMinutes = now.getMinutes();
 
-  if (minutes <= 0) return 'À quai';
-  return `${minutes}min`;
+  const arrivalTimeInMinutes = arrivalHours * 60 + arrivalMinutes;
+  const currentTimeInMinutes = currentHours * 60 + currentMinutes;
+
+  let minutesDifference = arrivalTimeInMinutes - currentTimeInMinutes;
+
+  if (minutesDifference <= 0) return 'À quai';
+  if (minutesDifference >= 60) return `${Math.floor(minutesDifference / 60)}h${minutesDifference % 60}min`;
+  return `${minutesDifference}min`;
 }
 
 type DiviaInfo = {
@@ -30,6 +36,7 @@ export default function Divia() {
     setError(null);
 
     const data: DiviaData = await fetchDiviaData();
+
     if (!data.success || !data.stops || !data.results)
       setError('Unable to load transportation data');
     else
@@ -67,7 +74,7 @@ export default function Divia() {
               <span className="font-medium">{stop.line.direction}:</span>
               {arrivals.map((arrival, i) => (
                 <span key={i} className="horaire bg-secondary px-2 py-1 rounded-md text-sm">
-                    {formatDate(arrival.timestamp)}
+                    {formatDate(arrival.text)}
                   </span>
               ))}
             </div>))}
