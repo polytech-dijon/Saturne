@@ -2,6 +2,8 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Arrival, DiviaData, fetchDiviaData, Stop } from '@/lib/divia';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 
 function formatDate(text: string): string {
   if (!text || text.length !== 5 || text[2] !== ':') return 'N/A';
@@ -65,21 +67,52 @@ export default function Divia() {
   }
 
   return (
-    <div className="w-full h-full flex flex-row items-center justify-around">
-      {diviaInfo!.length > 0 && (
-        <>
-          {diviaInfo!.map(({ stop, arrivals }) => (
-            <div key={stop.line.id} className="ligne flex items-center gap-2">
-              <img src={stop.line.icon} alt={stop.line.name} className="h-6" />
-              <span className="font-medium">{stop.line.direction}:</span>
-              {arrivals.map((arrival, i) => (
-                <span key={i} className="horaire bg-secondary px-2 py-1 rounded-md text-sm">
-                    {formatDate(arrival.text)}
-                  </span>
-              ))}
-            </div>))}
-        </>
-      )}
+    <div className="w-full h-full grid grid-cols-3 items-center">
+      {diviaInfo && diviaInfo.map(({ stop, arrivals }) => (
+        <div key={`${stop.line.id}-${stop.line.direction}`} className="flex justify-center max-h-[18vh]">
+          <Card className="py-3 gap-3">
+            <CardHeader className="px-4">
+              <div className="flex items-center justify-center gap-2">
+                <div className="flex items-center bg-primary/10 p-1.5 rounded-md">
+                  <img src={stop.line.icon} alt={stop.line.name} className="h-6 rounded-[0.35rem]" />
+                </div>
+                <div>
+                  <CardTitle>{stop.line.direction.split(' ').slice(0, 2).join(' ')}</CardTitle>
+                  <CardDescription>{stop.name}</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <div className="pl-2 pr-2">
+              <Separator />
+            </div>
+            <CardContent className="px-4">
+              {arrivals.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {arrivals.map((arrival, i) => (
+                    <div key={i}
+                         className="bg-secondary px-2.5 py-1 rounded-md text-sm font-medium flex items-center gap-1">
+                      {(() => {
+                        const formattedTime = formatDate(arrival.text);
+                        return (
+                          <>
+                          <span className={`h-2 w-2 rounded-full ${
+                            formattedTime === 'À quai' ? 'bg-green-500' :
+                              !formattedTime.includes('h') ? 'bg-amber-500' : 'bg-red-500'
+                          }`} />
+                            {formattedTime}
+                          </>
+                        );
+                      })()}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-sm text-muted-foreground text-center">No upcoming arrivals</div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      ))}
     </div>
   );
 }
