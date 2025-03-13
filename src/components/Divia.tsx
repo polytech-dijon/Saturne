@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Arrival, DiviaData, fetchDiviaData, Stop } from '@/lib/divia';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
 
 function formatDate(text: string): string {
   if (!text || text.length !== 5 || text[2] !== ':') return 'N/A';
@@ -69,12 +70,12 @@ export default function Divia() {
   return (
     <div className="w-full h-full grid grid-cols-3 items-center">
       {diviaInfo && diviaInfo.map(({ stop, arrivals }) => (
-        <div key={`${stop.line.id}-${stop.line.direction}`} className="flex justify-center max-h-[18vh]">
-          <Card className="py-3 gap-3">
+        <div key={`${stop.line.id}-${stop.line.direction}`} className="flex justify-center max-h-[19vh]">
+          <Card className="py-4 gap-4 border-0">
             <CardHeader className="px-4">
               <div className="flex items-center justify-center gap-2">
-                <div className="flex items-center bg-primary/10 p-1.5 rounded-md">
-                  <img src={stop.line.icon} alt={stop.line.name} className="h-6 rounded-[0.35rem]" />
+                <div className="flex items-center bg-azureish-white p-1.5 rounded-md">
+                  <img src={stop.line.icon} alt={stop.line.name} className="h-6 rounded-[0.3rem]" />
                 </div>
                 <div>
                   <CardTitle>{stop.line.direction.split(' ').slice(0, 2).join(' ')}</CardTitle>
@@ -82,15 +83,14 @@ export default function Divia() {
                 </div>
               </div>
             </CardHeader>
-            <div className="pl-2 pr-2">
+            <div className="pl-3 pr-3">
               <Separator />
             </div>
             <CardContent className="px-4">
               {arrivals.length > 0 ? (
                 <div className="flex flex-wrap gap-2">
                   {arrivals.map((arrival, i) => (
-                    <div key={i}
-                         className="bg-secondary px-2.5 py-1 rounded-md text-sm font-medium flex items-center gap-1">
+                    <Badge key={i}>
                       {(() => {
                         const formattedTime = formatDate(arrival.text);
                         return (
@@ -103,7 +103,7 @@ export default function Divia() {
                           </>
                         );
                       })()}
-                    </div>
+                    </Badge>
                   ))}
                 </div>
               ) : (
