@@ -68,7 +68,7 @@ export default function Divia() {
   }
 
   return (
-    <div className="w-full h-full grid grid-cols-3 items-center">
+    <div className="w-full h-full grid grid-cols-3 items-center relative top-[2vh]">
       {diviaInfo && diviaInfo.map(({ stop, arrivals }) => (
         <div key={`${stop.line.id}-${stop.line.direction}`} className="flex justify-center max-h-[19vh]">
           <Card className="py-4 gap-4 border-0">
