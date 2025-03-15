@@ -53,7 +53,7 @@ export async function fetchDiviaData(): Promise<DiviaData> {
     }));
 
     const serializableArrivals: Arrival[][] = results.map(arrivals =>
-      arrivals.map(arrival => ({
+      arrivals.sort((arrival1, arrival2) => arrival1.date.getTime() - arrival2.date.getTime()).map(arrival => ({
         text: arrival.text,
       })),
     );
