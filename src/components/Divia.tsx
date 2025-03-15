@@ -1,6 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { Fragment, useEffect, useState } from 'react';
 import { Arrival, DiviaData, fetchDiviaData, Stop } from '@/lib/divia';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -58,61 +57,61 @@ export default function Divia() {
     return <div className="p-4 text-center">Loading transportation data...</div>; // TODO Add a skeleton loader
   }
 
-  if (error) {
+  if (error || diviaInfo?.length !== 3) {
     return (
       <div className="p-4 text-center">
         <p className="text-destructive mb-2">{error}</p>
-        <Button onClick={() => loadDiviaData().catch(console.error)} variant="outline" size="sm">Retry</Button>
       </div>
     );
   }
 
   return (
-    <div className="w-full h-full grid grid-cols-3 items-center relative top-[2vh]">
-      {diviaInfo && diviaInfo.map(({ stop, arrivals }) => (
-        <div key={`${stop.line.id}-${stop.line.direction}`} className="flex justify-center max-h-[19vh]">
-          <Card className="py-4 gap-4 border-0">
-            <CardHeader className="px-4">
-              <div className="flex items-center justify-center gap-2">
-                <div className="flex items-center bg-azureish-white p-1.5 rounded-md">
-                  <img src={stop.line.icon} alt={stop.line.name} className="h-6 rounded-[0.3rem]" />
+    <div className="w-full h-full relative">
+      <Card className="border-0 flex-row justify-around items-center h-full max-h-40 w-full max-w-[70vw] gap-0
+                       absolute left-1/2 top-[12.5vh] transform -translate-x-1/2 -translate-y-1/2">
+        {diviaInfo && diviaInfo.map(({ stop, arrivals }, index) => (
+          <Fragment key={`${stop.line.id}-${stop.line.direction}`}>
+            {index > 0 && <div className="h-full"><Separator orientation="vertical" className="rounded-full" /></div>}
+            <div className="h-full flex flex-col justify-around">
+              <CardHeader>
+                <div className="flex items-center justify-center gap-2">
+                  <div className="flex items-center bg-azureish-white p-1.5 rounded-md">
+                    <img src={stop.line.icon} alt={stop.line.name} className="h-6 rounded-[0.3rem]" />
+                  </div>
+                  <div>
+                    <CardTitle>{stop.line.direction.split(' ').slice(0, 2).join(' ')}</CardTitle>
+                    <CardDescription>{stop.name}</CardDescription>
+                  </div>
                 </div>
-                <div>
-                  <CardTitle>{stop.line.direction.split(' ').slice(0, 2).join(' ')}</CardTitle>
-                  <CardDescription>{stop.name}</CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <div className="pl-3 pr-3">
-              <Separator />
-            </div>
-            <CardContent className="px-4">
-              {arrivals.length > 0 ? (
-                <div className="flex flex-wrap gap-2">
-                  {arrivals.map((arrival, i) => (
-                    <Badge key={i}>
-                      {(() => {
-                        const formattedTime = formatDate(arrival.text);
-                        return (
-                          <>
+              </CardHeader>
+              <CardContent>
+                {arrivals.length > 0 ? (
+                  <div className="flex flex-row gap-2">
+                    {arrivals.map((arrival, i) => (
+                      <Badge key={i}>
+                        {(() => {
+                          const formattedTime = formatDate(arrival.text);
+                          return (
+                            <>
                           <span className={`h-2 w-2 rounded-full ${
                             formattedTime === 'À quai' ? 'bg-green-500' :
                               !formattedTime.includes('h') ? 'bg-amber-500' : 'bg-red-500'
                           }`} />
-                            {formattedTime}
-                          </>
-                        );
-                      })()}
-                    </Badge>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-sm text-muted-foreground text-center">No upcoming arrivals</div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      ))}
+                              {formattedTime}
+                            </>
+                          );
+                        })()}
+                      </Badge>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-sm text-muted-foreground text-center">No upcoming arrivals</div>
+                )}
+              </CardContent>
+            </div>
+          </Fragment>
+        ))}
+      </Card>
     </div>
   );
 }

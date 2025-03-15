@@ -24,21 +24,21 @@ export type DiviaData = {
 };
 
 const serverDiviaApi = new DiviaAPI();
+let stops: ReturnType<typeof serverDiviaApi.findStop>[] = [];
 let initialized = false;
 
 export async function fetchDiviaData(): Promise<DiviaData> {
   if (!initialized) {
     await serverDiviaApi.init();
-    initialized = true;
-  }
-
-  try {
-    const stops = [
+    stops = [
       serverDiviaApi.findStop('T1', 'Université', 'A'),
       serverDiviaApi.findStop('T1', 'Université', 'R'),
       serverDiviaApi.findStop('L5', 'Université', 'A'),
     ];
+    initialized = true;
+  }
 
+  try {
     const results = await Promise.all(stops.map((stop) => stop.totem()));
 
     const serializableStops: Stop[] = stops.map(stop => ({
