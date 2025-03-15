@@ -6,6 +6,7 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 function formatDate(text: string): string {
   if (!text || text.length !== 5 || text[2] !== ':') return 'N/A';
@@ -56,7 +57,36 @@ export default function Divia() {
   }, []);
 
   if (isLoading && !diviaInfo) {
-    return <div className="p-4 text-center">Loading transportation data...</div>; // TODO Add a skeleton loader
+    return (
+      <div className="w-full h-full relative">
+        <Card className="border-0 flex-row justify-around items-center h-full max-h-40 w-full max-w-[70vw] gap-0
+                         absolute left-1/2 top-[12.5vh] transform -translate-x-1/2 -translate-y-1/2">
+          {[0, 1, 2].map((index) => (
+            <Fragment key={index}>
+              {index > 0 && <div className="h-full"><Separator orientation="vertical" className="rounded-full" /></div>}
+              <div className="h-full flex flex-col justify-around">
+                <CardHeader>
+                  <div className="flex items-center justify-center gap-2">
+                    <Skeleton className="h-10 w-15 rounded-md bg-muted-foreground" />
+                    <div>
+                      <Skeleton className="h-5 w-28 mb-1 bg-foreground" />
+                      <Skeleton className="h-3 w-20 bg-muted-foreground" />
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-row gap-2">
+                    {[0, 1].map((i) => (
+                      <Skeleton key={i} className="h-5 w-14 rounded-full bg-primary" />
+                    ))}
+                  </div>
+                </CardContent>
+              </div>
+            </Fragment>
+          ))}
+        </Card>
+      </div>
+    );
   }
 
   if (error || diviaInfo?.length !== 3) {
@@ -83,7 +113,7 @@ export default function Divia() {
             <div className="h-full flex flex-col justify-around">
               <CardHeader>
                 <div className="flex items-center justify-center gap-2">
-                  <div className="flex items-center bg-azureish-white p-1.5 rounded-md">
+                  <div className="flex items-center bg-muted-foreground p-1.5 rounded-md">
                     <img src={stop.line.icon} alt={stop.line.name} className="h-6 rounded-[0.3rem]" />
                   </div>
                   <div>
@@ -113,7 +143,7 @@ export default function Divia() {
                     ))}
                   </div>
                 ) : (
-                  <div className="text-sm text-muted-foreground text-center">No upcoming arrivals</div>
+                  <div className="text-sm text-muted-foreground">No upcoming arrivals</div>
                 )}
               </CardContent>
             </div>
