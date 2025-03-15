@@ -60,7 +60,7 @@
   --accent: var(--steel-blue);
   --accent-foreground: var(--cultured);
   --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: var(--cultured);
+  --destructive-foreground: oklch(0.577 0.245 27.325);
   --border: var(--azureish-white);
   --input: var(--azureish-white);
   --ring: var(--steel-blue);

@@ -4,6 +4,8 @@ import { Arrival, DiviaData, fetchDiviaData, Stop } from '@/lib/divia';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
 
 function formatDate(text: string): string {
   if (!text || text.length !== 5 || text[2] !== ':') return 'N/A';
@@ -59,9 +61,15 @@ export default function Divia() {
 
   if (error || diviaInfo?.length !== 3) {
     return (
-      <div className="p-4 text-center">
-        <p className="text-destructive mb-2">{error}</p>
-      </div>
+      <Alert variant="destructive"
+             className="mx-auto w-[30vw] left-1/2 top-[12.5vh] absolute transform -translate-x-1/2 -translate-y-1/2
+                        border-destructive-foreground bg-background">
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>Error loading transportation data</AlertTitle>
+        <AlertDescription>
+          {error || (diviaInfo ? 'Incomplete station data received.' : 'No data available.')}
+        </AlertDescription>
+      </Alert>
     );
   }
 
