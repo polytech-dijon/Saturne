@@ -27,7 +27,14 @@ const serverDiviaApi = new DiviaAPI();
 let stops: ReturnType<typeof serverDiviaApi.findStop>[] = [];
 let initialized = false;
 
+let cachedDiviaData: DiviaData | null = null;
+let cacheTimestamp = 0;
+const CACHE_TTL = 30 * 1000;
+
 export async function fetchDiviaData(): Promise<DiviaData> {
+  const now = Date.now();
+  if (cachedDiviaData && now - cacheTimestamp < CACHE_TTL) return cachedDiviaData;
+
   if (!initialized) {
     await serverDiviaApi.init();
     stops = [
@@ -58,7 +65,9 @@ export async function fetchDiviaData(): Promise<DiviaData> {
       })),
     );
 
-    return { success: true, stops: serializableStops, results: serializableArrivals };
+    cachedDiviaData = { success: true, stops: serializableStops, results: serializableArrivals };
+    cacheTimestamp = now;
+    return cachedDiviaData;
   } catch (error) {
     console.error('Failed to fetch Divia data:', error);
     return { success: false, error: 'Failed to fetch Divia data' };
