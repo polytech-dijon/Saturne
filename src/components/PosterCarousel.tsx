@@ -1,13 +1,29 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import { Carousel, type CarouselApi, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 import { Poster } from '@/lib/actions';
 import Autoplay from 'embla-carousel-autoplay';
+import { Skeleton } from '@/components/ui/skeleton';
 
-export default function PosterCarousel({ posters }: { posters: Poster[] }) {
+export function SkeletonCarousel() {
+  return (
+    <div className="w-full h-[70vh] flex items-center justify-center">
+      {Array(3)
+        .fill(0)
+        .map((_, index) => (
+          <div key={index} className="pl-4 pr-4 basis-1/3">
+            <Skeleton className="h-[30vh] w-auto rounded-lg bg-muted-foreground" />
+          </div>
+        ))}
+    </div>
+  );
+}
+
+export function PosterCarousel({ posters }: { posters: Promise<Poster[]> }) {
   const transitionDuration = 1000;
   const posterDuration = 5000; // TODO update when each poster has its own duration
   const [api, setApi] = useState<CarouselApi>();
+  const allPosters = use(posters);
 
   useEffect(() => {
     if (!api) return;
@@ -24,7 +40,7 @@ export default function PosterCarousel({ posters }: { posters: Poster[] }) {
       selected.style.zIndex = '1';
       if (selected.firstChild) (selected.firstChild as HTMLElement).style.transform = 'scale(2)';
 
-      if (posters.length > 1) {
+      if (allPosters.length > 1) {
         scaleOutTimer = setTimeout(() => {
           if (selected.firstChild) (selected.firstChild as HTMLElement).style.transform = '';
         }, posterDuration - transitionDuration);
@@ -66,7 +82,7 @@ export default function PosterCarousel({ posters }: { posters: Poster[] }) {
       clearTimeout(scaleOutTimer);
       clearTimeout(resetZIndexTimer);
     };
-  }, [api, posters.length]);
+  }, [api, allPosters.length]);
 
   return (
     <Carousel
@@ -83,9 +99,9 @@ export default function PosterCarousel({ posters }: { posters: Poster[] }) {
       ]}
       setApi={setApi}>
       <CarouselContent className="-ml-0 items-center w-[100vw] h-[60vh]">
-        {posters.map((poster) => (
+        {allPosters.map((poster) => (
           <CarouselItem key={poster.id}
-                        className={`pl-4 pr-4 ${posters.length > 4 ? 'basis-1/3' : (posters.length > 2 ? 'basis-1/2' : 'basis-full')}`}>
+                        className={`pl-4 pr-4 ${allPosters.length > 4 ? 'basis-1/3' : (allPosters.length > 2 ? 'basis-1/2' : 'basis-full')}`}>
             <div
               className="relative transition-transform duration-1000 ease-[ease] flex items-center justify-center">
               <img src={poster.image} alt={poster.title} className="h-[30vh] w-auto object-center rounded-lg" />

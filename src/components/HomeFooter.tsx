@@ -44,7 +44,7 @@ export default function HomeFooter() {
         <p className="text-3xl font-medium">{currentTime}</p>
       </div>
       <a href="https://github.com/polytech-dijon" target="_blank" rel="noopener noreferrer">
-        <Image src={PolyBytes} alt="Logo PolyBytes" className="w-auto h-[6vh] mr-[2vw]" />
+        <Image src={PolyBytes} alt="Logo PolyBytes" className="w-auto h-[6vh] mr-[2vw]" priority />
       </a>
     </footer>
   );
