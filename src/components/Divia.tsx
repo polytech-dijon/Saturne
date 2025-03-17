@@ -1,5 +1,5 @@
 'use client';
-import { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { Arrival, DiviaData, fetchDiviaData, Stop } from '@/lib/divia';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -31,84 +31,101 @@ type DiviaInfo = {
   arrivals: Arrival[],
 }[];
 
-function SkeletonCard() {
+function CardWrapper({ children }: { children: React.ReactNode }) {
   return (
     <div className="w-full h-full relative">
       <Card className="border-0 flex-row justify-around items-center h-full max-h-40 w-full max-w-[70vw] gap-0
                        absolute left-1/2 top-[12.5vh] transform -translate-x-1/2 -translate-y-1/2">
-        {[0, 1, 2].map((index) => (
-          <Fragment key={index}>
-            {index > 0 && <div className="h-full"><Separator orientation="vertical" className="rounded-full" /></div>}
-            <div className="h-full flex flex-col justify-around">
-              <CardHeader>
-                <div className="flex items-center justify-center gap-2">
-                  <Skeleton className="h-10 w-15 rounded-md bg-muted-foreground" />
-                  <div>
-                    <Skeleton className="h-5 w-30 mb-1 bg-foreground" />
-                    <Skeleton className="h-3 w-20 bg-muted-foreground" />
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-row gap-2">
-                  {[0, 1].map((i) => (
-                    <Skeleton key={i} className="h-5 w-14 rounded-full bg-primary" />
-                  ))}
-                </div>
-              </CardContent>
-            </div>
-          </Fragment>
-        ))}
+        {children}
       </Card>
     </div>
   );
 }
 
+function ItemWrapper({ header, content }: { header: React.ReactNode, content: React.ReactNode }) {
+  return (
+
+    <div className="h-full flex justify-center items-center basis-1/3 px-6">
+      <div className="flex flex-col justify-around gap-2">
+        <CardHeader className="px-0">
+          <div className="flex items-center gap-2">
+            {header}
+          </div>
+        </CardHeader>
+        <CardContent className="px-0">
+          <div className="flex flex-row gap-2">
+            {content}
+          </div>
+        </CardContent>
+      </div>
+    </div>
+  );
+}
+
+function SkeletonCard() {
+  return (
+    <CardWrapper>
+      {[0, 1, 2].map((index) => (
+        <Fragment key={index}>
+          {index > 0 && <div className="h-full"><Separator orientation="vertical" className="rounded-full" /></div>}
+          <ItemWrapper
+            header={
+              <>
+                <Skeleton className="h-10 w-15 rounded-md bg-muted-foreground" />
+                <div>
+                  <Skeleton className="h-5 w-30 mb-1 bg-foreground" />
+                  <Skeleton className="h-3 w-20 bg-muted-foreground" />
+                </div>
+              </>}
+            content={
+              [0, 1].map((i) => (
+                <Skeleton key={i} className="h-5 w-14 rounded-full bg-primary" />
+              ))} />
+        </Fragment>
+      ))}
+    </CardWrapper>
+  );
+}
+
 function DataCard({ diviaInfo }: { diviaInfo: DiviaInfo }) {
   return (
-    <div className="w-full h-full relative">
-      <Card className="border-0 flex-row justify-around items-center h-full max-h-40 w-full max-w-[70vw] gap-0
-                       absolute left-1/2 top-[12.5vh] transform -translate-x-1/2 -translate-y-1/2">
-        {diviaInfo.map(({ stop, arrivals }, index) => (
-          <Fragment key={`${stop.line.id}-${stop.line.direction}`}>
-            {index > 0 && <div className="h-full"><Separator orientation="vertical" className="rounded-full" /></div>}
-            <div className="h-full flex flex-col justify-around">
-              <CardHeader>
-                <div className="flex items-center justify-center gap-2">
-                  <div className="flex items-center bg-muted-foreground p-1.5 rounded-md">
-                    <img src={stop.line.icon} alt={stop.line.name} className="h-6 rounded-[0.3rem]" />
-                  </div>
-                  <div>
-                    <CardTitle>{stop.line.direction.split(' ').slice(0, 2).join(' ')}</CardTitle>
-                    <CardDescription>{stop.name}</CardDescription>
-                  </div>
+    <CardWrapper>
+      {diviaInfo.map(({ stop, arrivals }, index) => (
+        <Fragment key={`${stop.line.id}-${stop.line.direction}`}>
+          {index > 0 && <div className="h-full"><Separator orientation="vertical" className="rounded-full" /></div>}
+          <ItemWrapper
+            header={
+              <>
+                <div className="flex items-center bg-muted-foreground p-1.5 rounded-md">
+                  <img src={stop.line.icon} alt={stop.line.name} className="h-6 rounded-[0.3rem]" />
                 </div>
-              </CardHeader>
-              <CardContent>
-                {arrivals.length > 0 ? (
-                  <div className="flex flex-row gap-2">
-                    {arrivals.map((arrival, i) => {
-                      const formattedTime = formatDate(arrival.text);
-                      return (
-                        <Badge key={i}>
+                <div>
+                  <CardTitle>{stop.line.direction.split(' ').slice(0, 2).join(' ')}</CardTitle>
+                  <CardDescription>{stop.name}</CardDescription>
+                </div>
+              </>}
+            content={
+              arrivals.length > 0 ? (
+                <div className="flex flex-row gap-2">
+                  {arrivals.map((arrival, i) => {
+                    const formattedTime = formatDate(arrival.text);
+                    return (
+                      <Badge key={i}>
                         <span className={`h-2 w-2 rounded-full ${
                           formattedTime === 'À quai' ? 'bg-green-500' :
                             !formattedTime.includes('h') ? 'bg-amber-500' : 'bg-red-500'
                         }`} />
-                          {formattedTime}
-                        </Badge>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className="text-sm text-muted-foreground">No upcoming arrivals</div>
-                )}
-              </CardContent>
-            </div>
-          </Fragment>
-        ))}
-      </Card>
-    </div>
+                        {formattedTime}
+                      </Badge>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="text-sm text-muted-foreground">No upcoming arrivals</div>
+              )} />
+        </Fragment>
+      ))}
+    </CardWrapper>
   );
 }
 
