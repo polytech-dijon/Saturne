@@ -36,15 +36,17 @@ export default function HomeFooter() {
 
   return (
     <footer className="relative flex items-center justify-between h-full w-full">
-      <Link href="/" className="flex flex-row items-center ml-[2vw]">
-        <Image src={Saturne} alt="Logo Saturne" className="w-auto h-[6vh]" />
-        <p className="text-2xl font-medium m-2">Saturne</p>
+      <Link href="/" className="flex flex-row items-center ml-[2dvw] relative top-3 sm:top-0">
+        <Image src={Saturne} alt="Logo Saturne" className="w-auto h-[4dvh] sm:h-[8dvh]" />
+        <p className="text-lg sm:text-3xl font-medium m-2">Saturne</p>
       </Link>
-      <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
+      <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 sm:block hidden">
         <p className="text-3xl font-medium">{currentTime}</p>
       </div>
       <a href="https://github.com/polytech-dijon" target="_blank" rel="noopener noreferrer">
-        <Image src={PolyBytes} alt="Logo PolyBytes" className="w-auto h-[6vh] mr-[2vw]" priority />
+        <Image src={PolyBytes} alt="Logo PolyBytes"
+               className="w-auto h-[4dvh] sm:h-[6dvh] mr-[2dvw] relative top-3 sm:top-0"
+               priority />
       </a>
     </footer>
   );

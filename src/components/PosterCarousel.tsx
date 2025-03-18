@@ -7,12 +7,12 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 export function SkeletonCarousel() {
   return (
-    <div className="w-full h-[70vh] flex items-center justify-center">
+    <div className="w-full h-full flex items-center justify-center">
       {Array(3)
         .fill(0)
         .map((_, index) => (
           <div key={index} className="pl-4 pr-4 basis-1/3">
-            <Skeleton className="h-[30vh] w-auto rounded-lg bg-muted-foreground" />
+            <Skeleton className="h-[30dvh] w-auto rounded-lg bg-muted-foreground" />
           </div>
         ))}
     </div>
@@ -98,13 +98,14 @@ export function PosterCarousel({ posters }: { posters: Promise<Poster[]> }) {
         }),
       ]}
       setApi={setApi}>
-      <CarouselContent className="-ml-0 items-center w-[100vw] h-[60vh]">
+      <CarouselContent className="-ml-0 items-center w-[100dvw] h-[60dvh]">
         {allPosters.map((poster) => (
           <CarouselItem key={poster.id}
-                        className={`pl-4 pr-4 ${allPosters.length > 4 ? 'basis-1/3' : (allPosters.length > 2 ? 'basis-1/2' : 'basis-full')}`}>
+                        className={`pl-4 pr-4 basis-full ${allPosters.length > 4 ? 'sm:basis-1/3' : (allPosters.length > 2 ? 'sm:basis-1/2' : 'sm:basis-full')}`}>
             <div
               className="relative transition-transform duration-1000 ease-[ease] flex items-center justify-center">
-              <img src={poster.image} alt={poster.title} className="h-[30vh] w-auto object-center rounded-lg" />
+              <img src={poster.image} alt={poster.title}
+                   className="w-auto h-auto max-h-[30dvh] max-w-[48dvw] sm:h-[30dvh] sm:w-auto object-center rounded-lg" />
             </div>
           </CarouselItem>
         ))}

@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 function formatDate(text: string): string {
   if (!text || text.length !== 5 || text[2] !== ':') return 'N/A';
@@ -33,10 +34,16 @@ type DiviaInfo = {
 
 function CardWrapper({ children }: { children: React.ReactNode }) {
   return (
-    <div className="w-full h-full relative">
-      <Card className="border-0 flex-row justify-around items-center h-full max-h-40 w-full max-w-[70vw] gap-0
-                       absolute left-1/2 top-[12.5vh] transform -translate-x-1/2 -translate-y-1/2">
-        {children}
+    <div className="w-full h-full">
+      <Card className="border-0 h-full max-h-40 w-full max-w-[90dvw] sm:max-w-150 md:max-w-180 lg:max-w-200 gap-0
+                       relative left-1/2 top-[12.5dvh] transform -translate-x-1/2 -translate-y-1/2 py-0
+                       overflow-hidden">
+        <ScrollArea className="h-full [&>div]:flex [&>div]:items-center">
+          <div className="flex flex-row justify-center items-center">
+            {children}
+          </div>
+          <ScrollBar orientation="horizontal" className="opacity-50" />
+        </ScrollArea>
       </Card>
     </div>
   );
@@ -44,9 +51,8 @@ function CardWrapper({ children }: { children: React.ReactNode }) {
 
 function ItemWrapper({ header, content }: { header: React.ReactNode, content: React.ReactNode }) {
   return (
-
-    <div className="h-full flex justify-center items-center basis-1/3 px-6">
-      <div className="flex flex-col justify-around gap-2">
+    <div className="h-full flex justify-center items-center sm:basis-1/3 px-6">
+      <div className="h-full flex flex-col justify-around gap-2">
         <CardHeader className="px-0">
           <div className="flex items-center gap-2">
             {header}
@@ -67,7 +73,7 @@ function SkeletonCard() {
     <CardWrapper>
       {[0, 1, 2].map((index) => (
         <Fragment key={index}>
-          {index > 0 && <div className="h-full"><Separator orientation="vertical" className="rounded-full" /></div>}
+          {index > 0 && <div className="h-25"><Separator orientation="vertical" className="rounded-full" /></div>}
           <ItemWrapper
             header={
               <>
@@ -92,7 +98,8 @@ function DataCard({ diviaInfo }: { diviaInfo: DiviaInfo }) {
     <CardWrapper>
       {diviaInfo.map(({ stop, arrivals }, index) => (
         <Fragment key={`${stop.line.id}-${stop.line.direction}`}>
-          {index > 0 && <div className="h-full"><Separator orientation="vertical" className="rounded-full" /></div>}
+          {index > 0 &&
+            <div className="h-25"><Separator orientation="vertical" className="rounded-full" /></div>}
           <ItemWrapper
             header={
               <>
@@ -150,7 +157,7 @@ export default function Divia() {
   if (error || (diviaInfo && diviaInfo.length !== 3)) {
     return (
       <Alert variant="destructive"
-             className="mx-auto w-[30vw] left-1/2 top-[12.5vh] absolute transform -translate-x-1/2 -translate-y-1/2
+             className="mx-auto w-[30dvw] left-1/2 top-[12.5dvh] absolute transform -translate-x-1/2 -translate-y-1/2
                         border-destructive-foreground bg-background">
         <AlertCircle className="h-4 w-4" />
         <AlertTitle>Error loading transportation data</AlertTitle>
