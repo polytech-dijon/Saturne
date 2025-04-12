@@ -6,13 +6,11 @@ services:
       dockerfile: Dockerfile
     ports:
       - '3000:3000'
+    env_file: .env
     environment:
       NODE_ENV: production
       NEXT_TELEMETRY_DISABLED: 1
-      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
     restart: unless-stopped
-    networks:
-      - saturne-network-prod
     depends_on:
       postgres:
         condition: service_healthy
@@ -29,12 +27,6 @@ services:
       timeout: 5s
       retries: 5
     restart: unless-stopped
-    networks:
-      - saturne-network-prod
-
-networks:
-  saturne-network-prod:
-    driver: bridge
 
 volumes:
   saturne-postgres-data-prod:

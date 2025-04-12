@@ -1,21 +1,19 @@
 services:
   app:
     container_name: saturne-dev
-    image: node:22-alpine
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
     working_dir: /app
     env_file: .env.local
     ports:
       - "3000:3000"
     volumes:
       - .:/app
-      - /app/node_modules
     environment:
       NODE_ENV: development
       NEXT_TELEMETRY_DISABLED: 1
-      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
-    command: sh -c "npm install && npx prisma generate && npm run dev"
-    networks:
-      - saturne-network-dev
+    command: npm run dev
     depends_on:
       - postgres
 
@@ -27,12 +25,6 @@ services:
       - saturne-postgres-data-dev:/var/lib/postgresql/data
     ports:
       - "5432:5432"
-    networks:
-      - saturne-network-dev
-
-networks:
-  saturne-network-dev:
-    driver: bridge
 
 volumes:
   saturne-postgres-data-dev:

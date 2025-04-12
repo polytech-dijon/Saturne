@@ -34,13 +34,12 @@
     "lint": "next lint",
     "test": "jest",
     "test:watch": "jest --watch",
-    "docker:dev": "docker-compose -f docker-compose.dev.yaml --env-file .env.local up",
-    "docker:dev:build": "docker-compose -f docker-compose.dev.yaml --env-file .env.local up --build",
-    "docker:prod": "docker-compose -f docker-compose.yaml up --build",
-    "db:deploy": "npx prisma migrate deploy",
-    "db:migrate": "dotenv -e .env.local -- prisma migrate dev",
-    "db:studio": "dotenv -e .env.local -- prisma studio",
-    "db:seed": "dotenv -e .env.local -- prisma db seed"
+    "docker:dev": "docker compose -f docker-compose.dev.yaml up",
+    "docker:dev:build": "docker compose -f docker-compose.dev.yaml up --build",
+    "docker:prod": "docker compose -f docker-compose.yaml up --build",
+    "db:migrate": "docker exec -it saturne-dev sh -c \"npx prisma migrate dev\"",
+    "db:studio": "docker exec -it saturne-dev sh -c \"npx prisma studio\"",
+    "db:seed": "docker exec -it saturne-dev sh -c \"npx prisma db seed\""
   },
   "dependencies": {
     "@prisma/client": "^6.5.0",
