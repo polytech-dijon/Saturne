@@ -33,6 +33,7 @@ const CACHE_TTL = 30 * 1000;
 
 export async function fetchDiviaData(): Promise<DiviaData> {
   const now = Date.now();
+
   if (cachedDiviaData && now - cacheTimestamp < CACHE_TTL) return cachedDiviaData;
 
   if (!initialized) {
