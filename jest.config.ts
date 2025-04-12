@@ -21,8 +21,7 @@ const customJestConfig: Config = {
   coverageDirectory: 'coverage',
   coverageProvider: 'v8',
   moduleNameMapper: {
-    '@/components/(.*)': '<rootDir>/src/components/$1',
-    '@/lib/(.*)': '<rootDir>/src/lib/$1',
+    '@/(.*)': '<rootDir>/src/$1',
   },
 };
 
