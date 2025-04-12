@@ -22,11 +22,6 @@ jest.mock('@/components/PosterCarousel', () => ({
   SkeletonCarousel: () => <div data-testid="skeleton-carousel">Mock Skeleton</div>,
 }));
 
-jest.mock('@/components/ui/BreakpointIndicator', () => ({
-  __esModule: true,
-  default: () => <div data-testid="breakpoint-indicator">Mock BreakpointIndicator</div>,
-}));
-
 // Mock Suspense to simply render its children
 jest.mock('react', () => {
   const originalReact = jest.requireActual('react');
