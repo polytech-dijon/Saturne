@@ -171,7 +171,7 @@ export default function Divia() {
   if (error || (diviaInfo && diviaInfo.length !== 3)) {
     return (
       <Alert variant="destructive"
-             className="mx-auto w-[30dvw] left-1/2 top-[12.5dvh] absolute transform -translate-x-1/2 -translate-y-1/2
+             className="mx-auto w-auto min-w-max left-1/2 top-[8dvh] absolute transform -translate-x-1/2 -translate-y-1/2
                         border-destructive-foreground bg-background">
         <AlertCircle className="h-4 w-4" />
         <AlertTitle>Error loading transportation data</AlertTitle>
