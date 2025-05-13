@@ -39,10 +39,10 @@ type DiviaInfo = {
 function CardWrapper({ children }: { children: React.ReactNode }) {
   return (
     <div className="w-full h-full">
-      <Card className="gap-0 border-0 h-full max-h-40 2xl:max-h-50 w-full
+      <Card className="gap-0 border-0 h-full max-h-25 2xl:max-h-35 w-full
                        max-w-[90dvw] sm:max-w-150 md:max-w-180 lg:max-w-200 xl:max-w-250 2xl:max-w-300
-                       relative left-1/2 top-[12.5dvh] transform -translate-x-1/2 -translate-y-1/2 py-0
-                       overflow-hidden">
+                       relative left-1/2 transform -translate-x-1/2 py-0
+                       overflow-hidden rounded-t-none">
         <ScrollArea className="h-full [&>div]:flex [&>div]:items-center">
           <div className="flex flex-row justify-center items-center">
             {children}
@@ -73,25 +73,32 @@ function ItemWrapper({ header, content }: { header: React.ReactNode, content: Re
   );
 }
 
+function CardSeparator(index: number) {
+  if (index === 0) return null;
+  return (
+    <div className="h-18 2xl:h-25">
+      <Separator orientation="vertical" className="rounded-full" />
+    </div>);
+}
+
 function SkeletonCard() {
   return (
     <CardWrapper>
       {[0, 1, 2].map((index) => (
         <Fragment key={index}>
-          {index > 0 &&
-            <div className="h-25"><Separator orientation="vertical" className="rounded-full" /></div>}
+          {CardSeparator(index)}
           <ItemWrapper
             header={
               <>
-                <Skeleton className="h-10 w-15 rounded-md bg-muted-foreground" />
+                <Skeleton className="h-6 w-10 md:h-10 md:w-15 2xl:h-12 2xl:w-20 rounded-md bg-muted-foreground" />
                 <div>
-                  <Skeleton className="h-5 w-30 mb-1 bg-foreground" />
-                  <Skeleton className="h-3 w-20 bg-muted-foreground" />
+                  <Skeleton className="w-10 md:h-5 md:w-30 mb-1 bg-foreground" />
+                  <Skeleton className="md:h-3 md:w-15 2xl:h-5 2xl:w-20 bg-muted-foreground" />
                 </div>
               </>}
             content={
               [0, 1].map((i) => (
-                <Skeleton key={i} className="h-5 w-14 rounded-full bg-primary" />
+                <Skeleton key={i} className="md:h-5 md:w-14 2xl:h-8 2xl:w-18 rounded-full bg-primary" />
               ))} />
         </Fragment>
       ))}
@@ -104,20 +111,18 @@ function DataCard({ diviaInfo }: { diviaInfo: DiviaInfo }) {
     <CardWrapper>
       {diviaInfo.map(({ stop, arrivals }, index) => (
         <Fragment key={`${stop.line.id}-${stop.line.direction}`}>
-          {index > 0 &&
-            <div className="h-25 2xl:h-30"><Separator orientation="vertical" className="rounded-full" />
-            </div>}
+          {CardSeparator(index)}
           <ItemWrapper
             header={
               <>
                 <div className="flex items-center bg-muted-foreground p-1.5 2xl:p-2 rounded-md">
                   <img src={stop.line.icon} alt={stop.line.name}
-                       className="h-6 2xl:h-10 rounded-[0.3rem]" />
+                       className="h-6 2xl:h-8 rounded-[0.3rem]" />
                 </div>
                 <div>
                   <CardTitle
-                    className="2xl:text-2xl">{stop.line.direction.split(' ').slice(0, 2).join(' ')}</CardTitle>
-                  <CardDescription className="2xl:text-xl">{stop.name}</CardDescription>
+                    className="text-xs sm:text-base 2xl:text-xl leading-none">{stop.line.direction.split(' ').slice(0, 2).join(' ')}</CardTitle>
+                  <CardDescription className="text-[0.6rem] md:text-xs 2xl:text-base">{stop.name}</CardDescription>
                 </div>
               </>}
             content={
@@ -126,7 +131,7 @@ function DataCard({ diviaInfo }: { diviaInfo: DiviaInfo }) {
                   {arrivals.map((arrival, i) => {
                     const formattedTime = formatDate(arrival.text);
                     return (
-                      <Badge key={i} className="2xl:text-lg rounded-full">
+                      <Badge key={i} className="2xl:text-base rounded-full">
                         <span className={`h-2 w-2 2xl:h-3 2xl:w-3 rounded-full ${
                           formattedTime === 'À quai' ? 'bg-green-500' :
                             !formattedTime.includes('h') ? 'bg-amber-500' : 'bg-red-500'

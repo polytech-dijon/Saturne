@@ -12,7 +12,7 @@ export function SkeletonCarousel() {
         .fill(0)
         .map((_, index) => (
           <div key={index} className="pl-4 pr-4 basis-1/3">
-            <Skeleton className="h-[30dvh] w-auto rounded-lg bg-muted-foreground" />
+            <Skeleton className="h-[35dvh] w-auto rounded-lg bg-muted-foreground" />
           </div>
         ))}
     </div>
@@ -86,7 +86,7 @@ export function PosterCarousel({ posters }: { posters: Promise<Poster[]> }) {
 
   return (
     <Carousel
-      className="w-full h-full flex items-center"
+      className="w-full h-full flex items-center -translate-y-[2dvh]"
       opts={{
         loop: true,
         duration: 60,
@@ -98,14 +98,14 @@ export function PosterCarousel({ posters }: { posters: Promise<Poster[]> }) {
         }),
       ]}
       setApi={setApi}>
-      <CarouselContent className="-ml-0 items-center w-[100dvw] h-[60dvh]">
+      <CarouselContent className="-ml-0 items-center w-[100dvw] h-[70dvh]">
         {allPosters.map((poster) => (
           <CarouselItem key={poster.id}
                         className={`pl-4 pr-4 basis-full ${allPosters.length > 4 ? 'sm:basis-1/3' : (allPosters.length > 2 ? 'sm:basis-1/2' : 'sm:basis-full')}`}>
             <div
               className="relative transition-transform duration-1000 ease-[ease] flex items-center justify-center">
               <img src={poster.image} alt={poster.title}
-                   className="w-auto h-auto max-h-[30dvh] max-w-[48dvw] sm:h-[30dvh] sm:w-auto object-center rounded-lg" />
+                   className="w-auto h-auto max-h-[35dvh] max-w-[48dvw] sm:h-[35dvh] sm:w-auto object-center rounded-lg" />
             </div>
           </CarouselItem>
         ))}
