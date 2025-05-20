@@ -9,4 +9,3 @@ docker-compose.dev.yaml
 Dockerfile.dev
 README.md
 .next
-.env*
