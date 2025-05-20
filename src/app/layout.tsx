@@ -1,5 +1,6 @@
 import '@/app/globals.css';
 import React from 'react';
+import { inter } from '@/lib/fonts';
 
 export default function RootLayout({
                                      children,
@@ -8,7 +9,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr">
-      <body className={'bg-charleston-green text-foreground-bright-gray'}>
+      <body className={`${inter.className}`}>
         {children}
       </body>
     </html>

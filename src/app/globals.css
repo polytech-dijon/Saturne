@@ -1,14 +1,8 @@
 @import 'tailwindcss';
 
-@theme {
-  --color-charleston-green: #222831;
-  --color-steel-blue: #3f72af;
-  --color-space-cadet: #112d4e;
-  --color-arsenic: #393e46;
-  --color-azureish-white: #dbe2ef;
-  --color-cultured: #f9f7f7;
-  --color-foreground-bright-gray: #eee;
-}
+@plugin 'tailwindcss-animate';
+
+@custom-variant dark (&:is(.dark *));
 
 :root {
   /* --noise-image: url('chemin/vers/image-bruit.jpg'); */
@@ -42,6 +36,105 @@
   --font-size-caption: 12px;
   --font-size-button: 14px;
   --font-size-label: 10px;
+
+  --charleston-green: #222831;
+  --steel-blue: #3f72af;
+  --space-cadet: #112d4e;
+  --arsenic: #393e46;
+  --azureish-white: #dbe2ef;
+  --cultured: #f9f7f7;
+  --bright-gray: #eee;
+
+  --background: var(--charleston-green);
+  --foreground: var(--bright-gray);
+  --card: var(--arsenic);
+  --card-foreground: var(--bright-gray);
+  --popover: var(--arsenic);
+  --popover-foreground: var(--bright-gray);
+  --primary: var(--steel-blue);
+  --primary-foreground: var(--cultured);
+  --secondary: var(--space-cadet);
+  --secondary-foreground: var(--cultured);
+  --muted: var(--arsenic);
+  --muted-foreground: var(--azureish-white);
+  --accent: var(--steel-blue);
+  --accent-foreground: var(--cultured);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.577 0.245 27.325);
+  --border: var(--azureish-white);
+  --input: var(--azureish-white);
+  --ring: var(--steel-blue);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --radius: 0.75rem;
+  --sidebar: var(--charleston-green);
+  --sidebar-foreground: var(--bright-gray);
+  --sidebar-primary: var(--steel-blue);
+  --sidebar-primary-foreground: var(--cultured);
+  --sidebar-accent: var(--steel-blue);
+  --sidebar-accent-foreground: var(--cultured);
+  --sidebar-border: var(--azureish-white);
+  --sidebar-ring: var(--steel-blue);
+}
+
+@theme inline {
+  --color-charleston-green: var(--charleston-green);
+  --color-steel-blue: var(--steel-blue);
+  --color-space-cadet: var(--space-cadet);
+  --color-arsenic: var(--arsenic);
+  --color-azureish-white: var(--azureish-white);
+  --color-cultured: var(--cultured);
+  --color-bright-gray: var(--bright-gray);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
 }
 
 /* Logo */

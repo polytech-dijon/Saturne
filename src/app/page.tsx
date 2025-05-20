@@ -1,17 +1,24 @@
-import Image from 'next/image';
+import { getPosters } from '@/lib/actions';
+import HomeFooter from '@/components/HomeFooter';
+import Divia from '@/components/Divia';
+import { Suspense } from 'react';
+import { PosterCarousel, SkeletonCarousel } from '@/components/PosterCarousel';
 
-export default function Home() {
+export default async function Home() {
+  const posters = getPosters();
   return (
-    <div
-      className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <h1 className="text-4xl font-bold text-center">Hello, World!</h1>
-      <Image
-        src="/saturne.png"
-        alt="Saturne logo"
-        width={300}
-        height={300}
-      />
+    <div className="min-h-[100dvh] flex justify-between items-center flex-col">
+      <div className="w-full h-[20dvh]">
+        <Divia />
+      </div>
+      <div className="w-full h-[70dvh]">
+        <Suspense fallback={<SkeletonCarousel />}>
+          <PosterCarousel posters={posters} />
+        </Suspense>
+      </div>
+      <div className="w-full h-[10dvh]">
+        <HomeFooter />
+      </div>
     </div>
   );
 }
-
