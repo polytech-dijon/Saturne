@@ -39,7 +39,7 @@ type DiviaInfo = {
 function CardWrapper({ children }: { children: React.ReactNode }) {
   return (
     <div className="w-full h-full">
-      <Card className="gap-0 border-0 h-full max-h-25 2xl:max-h-35 w-full
+      <Card className="gap-0 border-0 h-full max-h-[16dvh] w-full
                        max-w-[90dvw] sm:max-w-150 md:max-w-180 lg:max-w-200 xl:max-w-250 2xl:max-w-300
                        relative left-1/2 transform -translate-x-1/2 py-0
                        overflow-hidden rounded-t-none">
