@@ -9,6 +9,17 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
+import React from "react";
 
 export function LoginForm({
   className,
@@ -39,12 +50,26 @@ export function LoginForm({
                 <div className="grid gap-3">
                   <div className="flex items-center">
                     <Label htmlFor="password">Mot de passe</Label>
-                    <a
-                      href="#"
-                      className="ml-auto text-sm underline-offset-4 hover:underline"
-                    >
-                      Mot de passe oublié ?
-                    </a>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <a href="#" className="ml-auto text-sm underline-offset-4 hover:underline">
+                          Mot de passe oublié ?
+                        </a>
+                      </DialogTrigger>
+                      <DialogContent className="border-none shadow-background shadow-md">
+                        <DialogHeader>
+                          <DialogTitle>Mot de passe oublié</DialogTitle>
+                          <DialogDescription>
+                            Si vous avez oublié votre mot de passe, veuillez demander à un membre de l&apos;association PolyBytes de réinitialiser votre mot de passe.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <DialogFooter>
+                          <DialogClose asChild>
+                            <Button>Fermer</Button>
+                          </DialogClose>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
                   </div>
                   <Input id="password" type="password" required />
                 </div>
