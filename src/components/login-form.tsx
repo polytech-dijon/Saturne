@@ -1,3 +1,5 @@
+'use client';
+
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -19,12 +21,21 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
-import React from "react";
+import {ComponentProps, useActionState, useEffect} from 'react';
+import { loginAction } from "@/lib/login";
+import { toast } from "sonner";
 
 export function LoginForm({
   className,
   ...props
-}: React.ComponentProps<"div">) {
+}: ComponentProps<"div">) {
+  const [state, action, pending] = useActionState(loginAction, { fieldErrors: {}, serverError: null });
+  useEffect(() => {
+    if (!pending && state.serverError) {
+      toast.error(state.serverError);
+    }
+  }, [pending, state.serverError]);
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="border-none shadow-muted">
@@ -35,24 +46,31 @@ export function LoginForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
+          <form action={action} noValidate>
             <div className="grid gap-6">
-              <div className="grid gap-6">
-                <div className="grid gap-3">
+              <div className="grid gap-3">
+                <div className="grid gap-0">
                   <Label htmlFor="username">Identifiant</Label>
                   <Input
                     id="username"
+                    name="username"
                     type="text"
                     placeholder="Votre identifiant"
+                    aria-invalid={!!state.fieldErrors.username}
+                    className="mt-3"
                     required
+                    tabIndex={1}
                   />
+                  <p className={`text-sm text-red-600 mt-1 h-4 ${state.fieldErrors.username ? '' : 'invisible'}`}>
+                    {state.fieldErrors.username}
+                  </p>
                 </div>
-                <div className="grid gap-3">
+                <div className="grid gap-0">
                   <div className="flex items-center">
                     <Label htmlFor="password">Mot de passe</Label>
                     <Dialog>
                       <DialogTrigger asChild>
-                        <a href="#" className="ml-auto text-sm underline-offset-4 hover:underline">
+                        <a href="#" className="ml-auto text-sm underline-offset-4 hover:underline" tabIndex={3}>
                           Mot de passe oublié ?
                         </a>
                       </DialogTrigger>
@@ -71,9 +89,20 @@ export function LoginForm({
                       </DialogContent>
                     </Dialog>
                   </div>
-                  <Input id="password" type="password" required />
+                  <Input
+                    id="password"
+                    name="password"
+                    type="password"
+                    aria-invalid={!!state.fieldErrors.password}
+                    className="mt-3"
+                    required
+                    tabIndex={2}
+                  />
+                  <p className={`text-sm text-red-600 mt-1 h-4 ${state.fieldErrors.password ? '' : 'invisible'}`}>
+                    {state.fieldErrors.password}
+                  </p>
                 </div>
-                <Button type="submit" className="w-full">
+                <Button type="submit" className="w-full" disabled={pending}>
                   Se connecter
                 </Button>
               </div>
