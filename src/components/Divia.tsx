@@ -8,6 +8,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import Image from 'next/image';
 
 function formatDate(text: string): string {
   if (!text || text.length !== 5 || text[2] !== ':') return 'N/A';
@@ -39,9 +40,9 @@ type DiviaInfo = {
 function CardWrapper({ children }: { children: React.ReactNode }) {
   return (
     <div className="w-full h-full">
-      <Card className="gap-0 border-0 h-full max-h-[16dvh] w-full
+      <Card className="gap-0 border-0 max-h-[16dvh] h-auto py-[2dvh] w-full
                        max-w-[90dvw] sm:max-w-150 md:max-w-180 lg:max-w-200 xl:max-w-250 2xl:max-w-300
-                       relative left-1/2 transform -translate-x-1/2 py-0
+                       relative left-1/2 transform -translate-x-1/2
                        overflow-hidden rounded-t-none">
         <ScrollArea className="h-full [&>div]:flex [&>div]:items-center">
           <div className="flex flex-row justify-center items-center">
@@ -116,7 +117,7 @@ function DataCard({ diviaInfo }: { diviaInfo: DiviaInfo }) {
             header={
               <>
                 <div className="flex items-center bg-muted-foreground p-1.5 2xl:p-2 rounded-md">
-                  <img src={stop.line.icon} alt={stop.line.name}
+                  <Image src={stop.line.icon} alt={stop.line.name} width={48} height={25}
                        className="h-6 2xl:h-8 rounded-[0.3rem]" />
                 </div>
                 <div>
