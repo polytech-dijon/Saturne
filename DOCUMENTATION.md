@@ -2,7 +2,10 @@
 
 ## Aperçu du Projet
 
-Saturne est une application web construite avec **Next.js**, utilisant **Prisma** pour la gestion de la base de données et **Postgres** comme base de données. Le projet est conteneurisé avec **Docker** pour garantir des environnements de développement et de production cohérents. Cette documentation fournit des instructions claires pour démarrer et maintenir le projet efficacement.
+Saturne est une application web construite avec **Next.js**, utilisant **Prisma** pour la gestion de la base de données
+et **Postgres** comme base de données. Le projet est conteneurisé avec **Docker** pour garantir des environnements de
+développement et de production cohérents. Cette documentation fournit des instructions claires pour démarrer et
+maintenir le projet efficacement.
 
 ---
 
@@ -112,7 +115,7 @@ Chaque fois que vous modifiez `prisma/schema.prisma` (par exemple, en ajoutant u
 
 ### Peuplement de la Base de Données
 
-Pour remplir la base de données avec des données initiales (définies dans `prisma/seed.ts`) :
+Pour remplir la base de données avec des données initiales (définies dans `prisma/seed-test.ts`) :
 
 ```bash
 npm run db:seed
@@ -136,14 +139,17 @@ npm run docker:prod
 - Convient pour vérifier la construction de production localement.
 
 > [!CAUTION]
-> Si vous lancez l'application en mode production sur votre machine locale, vous risquez d'avoir des problèmes pour repasser en mode développement. Supprimez d'abord les conteneurs de production avant de lancer les conteneurs de développement :
+> Si vous lancez l'application en mode production sur votre machine locale, vous risquez d'avoir des problèmes pour
+> repasser en mode développement. Supprimez d'abord les conteneurs de production avant de lancer les conteneurs de
+> développement :
 > ```bash
 > docker rm saturne-prod postgres-prod
 > docker volume rm saturne_saturne-postgres-data-prod
 > docker network rm saturne_saturne-network-prod
 > npm run docker:dev:build
 > ```
-> **Attention** : Si vous avez tenté de lancer le mode développement avant de supprimer les conteneurs de production, les noms des conteneurs à supprimer peuvent différer.
+> **Attention** : Si vous avez tenté de lancer le mode développement avant de supprimer les conteneurs de production,
+> les noms des conteneurs à supprimer peuvent différer.
 
 ---
 

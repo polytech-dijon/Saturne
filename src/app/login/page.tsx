@@ -2,8 +2,12 @@ import { LoginForm } from '@/components/LoginForm';
 import Link from 'next/link';
 import Saturne from '@/../public/saturne.png';
 import Image from 'next/image';
+import { auth } from '@/auth';
+import { redirect } from 'next/navigation';
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  const session = await auth();
+  if (session) redirect('/dashboard');
   return (
     <div className="flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
       <div className="flex w-full max-w-sm flex-col gap-6">

@@ -39,7 +39,7 @@
     "docker:prod": "docker compose -f docker-compose.yaml up --build",
     "db:migrate": "docker exec -it saturne-dev sh -c \"npx prisma migrate dev\"",
     "db:studio": "docker exec -it saturne-dev sh -c \"npx prisma studio\"",
-    "db:seed": "docker exec -it saturne-dev sh -c \"npx prisma db seed\""
+    "db:seed": "docker exec -it saturne-dev sh -c \"npx tsx prisma/seed-test.ts\""
   },
   "dependencies": {
     "@prisma/client": "^6.7.0",
