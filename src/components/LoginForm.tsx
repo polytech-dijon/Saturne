@@ -1,16 +1,16 @@
 'use client';
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Dialog,
   DialogTrigger,
@@ -20,24 +20,26 @@ import {
   DialogDescription,
   DialogFooter,
   DialogClose,
-} from "@/components/ui/dialog";
-import {ComponentProps, useActionState, useEffect} from 'react';
-import { loginAction } from "@/lib/login";
-import { toast } from "sonner";
+} from '@/components/ui/dialog';
+import { ComponentProps, useActionState, useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { loginAction } from '@/lib/login';
 
 export function LoginForm({
-  className,
-  ...props
-}: ComponentProps<"div">) {
+                            className,
+                            ...props
+                          }: ComponentProps<'div'>) {
   const [state, action, pending] = useActionState(loginAction, { fieldErrors: {}, serverError: null });
+  const [username, setUsername] = useState('');
   useEffect(() => {
     if (!pending && state.serverError) {
       toast.error(state.serverError);
+      setUsername('');
     }
   }, [pending, state.serverError]);
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
+    <div className={cn('flex flex-col gap-6', className)} {...props}>
       <Card className="border-none shadow-muted">
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Bon retour</CardTitle>
@@ -60,8 +62,10 @@ export function LoginForm({
                     className="mt-3"
                     required
                     tabIndex={1}
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
                   />
-                  <p className={`text-sm text-red-600 mt-1 h-4 ${state.fieldErrors.username ? '' : 'invisible'}`}>
+                  <p className={`text-xs text-red-600 mt-1 h-4 ${state.fieldErrors.username ? '' : 'invisible'}`}>
                     {state.fieldErrors.username}
                   </p>
                 </div>
@@ -78,7 +82,8 @@ export function LoginForm({
                         <DialogHeader>
                           <DialogTitle>Mot de passe oublié</DialogTitle>
                           <DialogDescription>
-                            Si vous avez oublié votre mot de passe, veuillez demander à un membre de l&apos;association PolyBytes de réinitialiser votre mot de passe.
+                            Si vous avez oublié votre mot de passe, veuillez demander à un membre de l&apos;association
+                            PolyBytes de réinitialiser votre mot de passe.
                           </DialogDescription>
                         </DialogHeader>
                         <DialogFooter>
@@ -98,7 +103,7 @@ export function LoginForm({
                     required
                     tabIndex={2}
                   />
-                  <p className={`text-sm text-red-600 mt-1 h-4 ${state.fieldErrors.password ? '' : 'invisible'}`}>
+                  <p className={`text-xs text-red-600 mt-1 h-4 ${state.fieldErrors.password ? '' : 'invisible'}`}>
                     {state.fieldErrors.password}
                   </p>
                 </div>
@@ -111,5 +116,5 @@ export function LoginForm({
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

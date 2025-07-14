@@ -1,5 +1,7 @@
-import { LoginForm } from "@/components/LoginForm"
-import Link from "next/link";
+import { LoginForm } from '@/components/LoginForm';
+import Link from 'next/link';
+import Saturne from '@/../public/saturne.png';
+import Image from 'next/image';
 
 export default function LoginPage() {
   return (
@@ -7,12 +9,12 @@ export default function LoginPage() {
       <div className="flex w-full max-w-sm flex-col gap-6">
         <Link href="/" className="flex items-center gap-2 self-center font-medium text-xl">
           <div className="bg-primary text-primary-foreground flex size-10 items-center justify-center rounded-xl">
-            <img src="/saturne.png" className="size-8" alt="Saturne logo"/>
+            <Image src={Saturne} className="size-8" alt="Saturne logo"/>
           </div>
           Saturne
         </Link>
-        <LoginForm />
+        <LoginForm/>
       </div>
     </div>
-  )
+  );
 }
