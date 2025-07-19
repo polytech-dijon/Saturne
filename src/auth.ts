@@ -4,8 +4,10 @@ import bcrypt from 'bcryptjs';
 import prisma from '@/lib/prisma';
 import { signInSchema } from '@/lib/zod';
 import { PasswordError, UsernameError } from '@/lib/errors';
+import { Role } from '@prisma/client';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  trustHost: true,
   session: { strategy: 'jwt' },
   providers: [
     Credentials({
@@ -26,10 +28,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           throw new Error();
         }
         const { username, password } = parseResult.data;
+        const safeCompare = async (password: string, realHash?: string) => {
+          const fakeHash =
+            '$2a$12$XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+          return bcrypt.compare(password, realHash ?? fakeHash);
+        };
         const user = await prisma.user.findUnique({ where: { username } });
-        if (!user) return null;
-        const ok = await bcrypt.compare(password, user.passwordHash);
-        return ok ? { id: user.id, name: user.username, role: user.role } : null;
+        const ok = await safeCompare(password, user?.passwordHash);
+        if (!user || !ok) {
+          console.debug('[Auth] Login failed');
+          return null;
+        }
+        return { id: user.id, name: user.username, role: user.role };
       },
     }),
   ],
@@ -39,11 +49,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return token;
     },
     async session({ session, token }) {
-      if (token?.role) session.user.role = token.role as string;
+      if (token?.role) session.user.role = token.role as Role;
       return session;
     },
     async authorized({ auth }) {
       return !!auth;
+    },
+  },
+  logger: {
+    error() {
+    },
+    warn() {
+    },
+    debug() {
     },
   },
   pages: {

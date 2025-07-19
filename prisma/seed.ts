@@ -1,19 +1,32 @@
 import bcrypt from 'bcryptjs';
-import prisma from '@/lib/prisma';
-import { Role } from '@prisma/client';
+import { PrismaClient, Role } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 if (!process.env.ADMIN_USERNAME || !process.env.ADMIN_PASSWORD) {
   console.error('Missing environment variables: ADMIN_USERNAME, ADMIN_PASSWORD');
   process.exit(1);
 }
 
-await prisma.user.upsert({
-  where: { username: process.env.ADMIN_USERNAME },
-  update: {},
-  create: {
-    username: process.env.ADMIN_USERNAME,
-    passwordHash: bcrypt.hashSync(process.env.ADMIN_PASSWORD, 12),
-    role: Role.ADMIN,
-  },
-});
-console.log('Admin account seeded.');
+
+async function main() {
+  await prisma.user.upsert({
+    where: { username: process.env.ADMIN_USERNAME },
+    update: {},
+    create: {
+      username: process.env.ADMIN_USERNAME as string,
+      passwordHash: bcrypt.hashSync(process.env.ADMIN_PASSWORD as string, 12),
+      role: Role.ADMIN,
+    },
+  });
+  console.log('Admin account seeded.');
+}
+
+main()
+  .catch((e) => {
+    console.error('Seeding error:', e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

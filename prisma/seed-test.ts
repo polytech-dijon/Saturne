@@ -4,6 +4,11 @@ import fs from 'fs';
 import assert from 'assert';
 import bcrypt from 'bcryptjs';
 
+if (process.env.NODE_ENV === 'production') {
+  console.error('Seeding is disabled in production environment');
+  process.exit(1);
+}
+
 const prisma = new PrismaClient();
 
 const userData: Prisma.UserCreateInput[] = [
