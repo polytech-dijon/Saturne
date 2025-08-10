@@ -8,7 +8,7 @@ const createJestConfig = nextJest({
 });
 
 const customJestConfig: Config = {
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts', '<rootDir>/src/lib/mock-prisma.ts'],
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts', '<rootDir>/__mocks__/prisma.ts'],
   testEnvironment: 'jsdom',
   clearMocks: true,
   collectCoverage: true,
@@ -25,4 +25,9 @@ const customJestConfig: Config = {
   },
 };
 
-export default createJestConfig(customJestConfig);
+export default async () => ({
+  ...(await createJestConfig(customJestConfig)()),
+  transformIgnorePatterns: [
+    'node_modules/(?!(next-auth|@auth/core|@panva|jose|preact-render-to-string|preact|oauth4webapi)/)',
+  ],
+})

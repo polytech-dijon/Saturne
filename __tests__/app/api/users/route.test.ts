@@ -4,7 +4,7 @@
 
 import { GET } from '@/app/api/users/route';
 import { NextResponse } from 'next/server';
-import { prismaMock } from '@/lib/mock-prisma';
+import { prismaMock } from '@/../__mocks__/prisma';
 import { User } from '@prisma/client';
 
 describe('GET /api/users', () => {

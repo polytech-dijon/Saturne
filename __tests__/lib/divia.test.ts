@@ -138,7 +138,7 @@ describe('Divia API', () => {
     ]);
 
     const result = await fetchDiviaData();
-    
+
     expect(result.success).toBe(true);
     expect(result.results?.[0][0].text).toBe(time2);
     expect(result.results?.[0][1].text).toBe(time1);
