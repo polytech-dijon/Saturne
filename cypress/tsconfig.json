@@ -1,0 +1,17 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "types": [
+      "cypress",
+      "node"
+    ]
+  },
+  "include": [
+    "e2e/**/*.ts",
+    "e2e/**/*.tsx",
+    "support/**/*.ts",
+    "support/**/*.tsx",
+    "fixtures/**/*.ts",
+    "**/*.d.ts"
+  ]
+}

@@ -10,7 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 function formatDate(text: string): string {
-  if (!text || text.length !== 5 || text[2] !== ':') return 'N/A';
+  if (!text || text.length !== 5 || text[2] !== ':') return 'N/D';
 
 
   const now = new Date();
@@ -142,7 +142,7 @@ function DataCard({ diviaInfo }: { diviaInfo: DiviaInfo }) {
                   })}
                 </div>
               ) : (
-                <div className="text-sm text-muted-foreground">No upcoming arrivals</div>
+                <div className="text-sm text-muted-foreground">Aucune arrivée imminente</div>
               )}/>
         </Fragment>
       ))}
@@ -158,7 +158,7 @@ export default function Divia() {
     setError(null);
     const data: DiviaData = await fetchDiviaData();
 
-    if (!data.success || !data.stops || !data.results) setError('Unable to load transportation data');
+    if (!data.success || !data.stops || !data.results) setError('Impossible de charger les données de transport');
     else setDiviaInfo(data.stops.map((stop, i) => ({ stop, arrivals: data.results![i] })));
   };
 
@@ -174,9 +174,9 @@ export default function Divia() {
              className="mx-auto w-auto min-w-max left-1/2 top-[8dvh] absolute transform -translate-x-1/2 -translate-y-1/2
                         border-destructive-foreground bg-background" data-testid="divia-error">
         <AlertCircle className="h-4 w-4"/>
-        <AlertTitle>Error loading transportation data</AlertTitle>
+        <AlertTitle>Erreur lors du chargement des données de transport</AlertTitle>
         <AlertDescription>
-          {error || 'Incomplete station data received.'}
+          {error || 'Données de station incomplètes reçues.'}
         </AlertDescription>
       </Alert>
     );
