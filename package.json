@@ -38,8 +38,11 @@
     "docker:dev:build": "docker compose --env-file .env.local -f docker-compose.dev.yaml up --build",
     "docker:prod": "docker compose -f docker-compose.yaml up --build",
     "db:migrate": "docker exec -it saturne-dev sh -c \"npx prisma migrate dev\"",
+    "db:deploy": "docker exec -it saturne-dev sh -c \"npx prisma migrate deploy\"",
     "db:studio": "docker exec -it saturne-dev sh -c \"npx prisma studio\"",
-    "db:seed": "docker exec -it saturne-dev sh -c \"npx tsx prisma/seed-test.ts\""
+    "db:seed": "docker exec -it saturne-dev sh -c \"npx tsx prisma/seed-test.ts\"",
+    "e2e:local": "npx -y dotenv-cli -e .env.local -- npx cypress open",
+    "e2e:ci": "docker compose --env-file .env.local -f docker-compose.dev.yaml --profile e2e up --build --exit-code-from cypress cypress"
   },
   "dependencies": {
     "@prisma/client": "^6.7.0",
@@ -76,6 +79,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "cypress": "^14.5.4",
     "dotenv-cli": "^8.0.0",
     "eslint": "^9",
     "eslint-config-next": "^15.2.3",

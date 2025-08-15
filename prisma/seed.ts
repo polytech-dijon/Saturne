@@ -8,6 +8,10 @@ if (!process.env.ADMIN_USERNAME || !process.env.ADMIN_PASSWORD) {
   process.exit(1);
 }
 
+if (process.env.ADMIN_USERNAME === 'admin' || process.env.ADMIN_PASSWORD === 'password') {
+  console.error('Admin username and password cannot be the default "admin" or "password"');
+  process.exit(1);
+}
 
 async function main() {
   await prisma.user.upsert({

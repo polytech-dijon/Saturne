@@ -27,6 +27,20 @@ services:
     ports:
       - "5432:5432"
 
+  cypress:
+    profiles: [ "e2e" ]
+    image: cypress/included:13.13.0
+    working_dir: /e2e
+    depends_on:
+      - app
+    env_file:
+      - .env.local
+    environment:
+      CYPRESS_baseUrl: http://app:3000
+    volumes:
+      - .:/e2e
+    command: [ "--headless" ]
+
 volumes:
   saturne-postgres-data-dev:
     driver: local

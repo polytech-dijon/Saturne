@@ -1,5 +1,6 @@
 'use server';
 import DiviaAPI from 'divia-api';
+import { cookies } from 'next/headers';
 
 export type Stop = {
   id: string;
@@ -33,6 +34,34 @@ const CACHE_TTL = 30 * 1000;
 
 export async function fetchDiviaData(): Promise<DiviaData> {
   const now = Date.now();
+
+  // E2E test hook
+  if (process.env.NODE_ENV === 'development') {
+    const mode = (await cookies()).get('divia-test')?.value;
+    if (mode) {
+      // Ignore cache for deterministic tests
+      cachedDiviaData = null;
+      cacheTimestamp = 0;
+      const fakeStops: Stop[] = [
+        { id: 'A', name: 'Université', line: { id: 'T1', name: 'T1', direction: 'A', icon: '' } },
+        { id: 'B', name: 'Université', line: { id: 'T1', name: 'T1', direction: 'R', icon: '' } },
+        { id: 'C', name: 'Université', line: { id: 'L5', name: 'L5', direction: 'A', icon: '' } },
+      ];
+      const fakeResults: Arrival[][] = [[], [], []];
+
+      if (mode === 'error') {
+        return { success: false, error: 'Failed to fetch Divia data (test)' };
+      }
+      if (mode === 'incomplete') {
+        // Return fewer than 3 stops -> triggers your "incomplete" error branch
+        return { success: true, stops: fakeStops.slice(0, 2), results: fakeResults.slice(0, 2) };
+      }
+      if (mode === 'delay') {
+        await new Promise((r) => setTimeout(r, 1000));
+        return { success: true, stops: fakeStops, results: fakeResults };
+      }
+    }
+  }
 
   if (cachedDiviaData && now - cacheTimestamp < CACHE_TTL) return cachedDiviaData;
 

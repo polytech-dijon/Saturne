@@ -36,9 +36,9 @@ type DiviaInfo = {
   arrivals: Arrival[],
 }[];
 
-function CardWrapper({ children }: { children: React.ReactNode }) {
+function CardWrapper({ children, ...props }: { children: React.ReactNode } & React.ComponentPropsWithoutRef<'div'>) {
   return (
-    <div className="w-full h-full">
+    <div className="w-full h-full" {...props}>
       <Card className="gap-0 border-0 h-full max-h-[16dvh] w-full
                        max-w-[90dvw] sm:max-w-150 md:max-w-180 lg:max-w-200 xl:max-w-250 2xl:max-w-300
                        relative left-1/2 transform -translate-x-1/2 py-0
@@ -47,7 +47,7 @@ function CardWrapper({ children }: { children: React.ReactNode }) {
           <div className="flex flex-row justify-center items-center">
             {children}
           </div>
-          <ScrollBar orientation="horizontal" className="opacity-50" />
+          <ScrollBar orientation="horizontal" className="opacity-50"/>
         </ScrollArea>
       </Card>
     </div>
@@ -77,29 +77,29 @@ function CardSeparator(index: number) {
   if (index === 0) return null;
   return (
     <div className="h-18 2xl:h-25">
-      <Separator orientation="vertical" className="rounded-full" />
+      <Separator orientation="vertical" className="rounded-full"/>
     </div>);
 }
 
 function SkeletonCard() {
   return (
-    <CardWrapper>
+    <CardWrapper data-testid="divia-skeleton">
       {[0, 1, 2].map((index) => (
         <Fragment key={index}>
           {CardSeparator(index)}
           <ItemWrapper
             header={
               <>
-                <Skeleton className="h-6 w-10 md:h-10 md:w-15 2xl:h-12 2xl:w-20 rounded-md bg-muted-foreground" />
+                <Skeleton className="h-6 w-10 md:h-10 md:w-15 2xl:h-12 2xl:w-20 rounded-md bg-muted-foreground"/>
                 <div>
-                  <Skeleton className="w-10 md:h-5 md:w-30 mb-1 bg-foreground" />
-                  <Skeleton className="md:h-3 md:w-15 2xl:h-5 2xl:w-20 bg-muted-foreground" />
+                  <Skeleton className="w-10 md:h-5 md:w-30 mb-1 bg-foreground"/>
+                  <Skeleton className="md:h-3 md:w-15 2xl:h-5 2xl:w-20 bg-muted-foreground"/>
                 </div>
               </>}
             content={
               [0, 1].map((i) => (
-                <Skeleton key={i} className="md:h-5 md:w-14 2xl:h-8 2xl:w-18 rounded-full bg-primary" />
-              ))} />
+                <Skeleton key={i} className="md:h-5 md:w-14 2xl:h-8 2xl:w-18 rounded-full bg-primary"/>
+              ))}/>
         </Fragment>
       ))}
     </CardWrapper>
@@ -108,7 +108,7 @@ function SkeletonCard() {
 
 function DataCard({ diviaInfo }: { diviaInfo: DiviaInfo }) {
   return (
-    <CardWrapper>
+    <CardWrapper data-testid="divia-card">
       {diviaInfo.map(({ stop, arrivals }, index) => (
         <Fragment key={`${stop.line.id}-${stop.line.direction}`}>
           {CardSeparator(index)}
@@ -117,7 +117,7 @@ function DataCard({ diviaInfo }: { diviaInfo: DiviaInfo }) {
               <>
                 <div className="flex items-center bg-muted-foreground p-1.5 2xl:p-2 rounded-md">
                   <img src={stop.line.icon} alt={stop.line.name}
-                       className="h-6 2xl:h-8 rounded-[0.3rem]" />
+                       className="h-6 2xl:h-8 rounded-[0.3rem]"/>
                 </div>
                 <div>
                   <CardTitle
@@ -135,7 +135,7 @@ function DataCard({ diviaInfo }: { diviaInfo: DiviaInfo }) {
                         <span className={`h-2 w-2 2xl:h-3 2xl:w-3 rounded-full ${
                           formattedTime === 'À quai' ? 'bg-green-500' :
                             !formattedTime.includes('h') ? 'bg-amber-500' : 'bg-red-500'
-                        }`} />
+                        }`}/>
                         {formattedTime}
                       </Badge>
                     );
@@ -143,7 +143,7 @@ function DataCard({ diviaInfo }: { diviaInfo: DiviaInfo }) {
                 </div>
               ) : (
                 <div className="text-sm text-muted-foreground">No upcoming arrivals</div>
-              )} />
+              )}/>
         </Fragment>
       ))}
     </CardWrapper>
@@ -172,8 +172,8 @@ export default function Divia() {
     return (
       <Alert variant="destructive"
              className="mx-auto w-auto min-w-max left-1/2 top-[8dvh] absolute transform -translate-x-1/2 -translate-y-1/2
-                        border-destructive-foreground bg-background">
-        <AlertCircle className="h-4 w-4" />
+                        border-destructive-foreground bg-background" data-testid="divia-error">
+        <AlertCircle className="h-4 w-4"/>
         <AlertTitle>Error loading transportation data</AlertTitle>
         <AlertDescription>
           {error || 'Incomplete station data received.'}
@@ -182,7 +182,7 @@ export default function Divia() {
     );
   }
 
-  if (!diviaInfo) return <SkeletonCard />;
+  if (!diviaInfo) return <SkeletonCard/>;
 
-  return <DataCard diviaInfo={diviaInfo} />;
+  return <DataCard diviaInfo={diviaInfo}/>;
 }

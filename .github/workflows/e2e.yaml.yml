@@ -1,0 +1,44 @@
+name: E2E (Cypress)
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    concurrency:
+      group: e2e-${{ github.ref }}
+      cancel-in-progress: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create .env.local for CI
+        run: |
+          cat > .env.local << 'EOF'
+          POSTGRES_USER=postgres
+          POSTGRES_PASSWORD=postgres
+          POSTGRES_DB=saturne_e2e
+          POSTGRES_IP=postgres
+          POSTGRES_PORT=5432
+          DATABASE_URL=postgresql://postgres:postgres@postgres:5432/saturne_e2e?schema=public
+          NEXT_PUBLIC_API_URL=https://mercure.bde-polytech-dijon.com/api
+          AUTH_SECRET=dev-ci-only-not-secret
+          EOF
+          npx -y auth@latest secret
+
+      - name: Run Cypress E2E in Docker
+        run: |
+          npm run e2e:ci
+
+      - name: Print logs on failure
+        if: failure()
+        run: |
+          docker compose -f docker-compose.dev.yaml logs --no-color | tail -n 500
+
+      - name: Down
+        if: always()
+        run: docker compose -f docker-compose.dev.yaml down -v

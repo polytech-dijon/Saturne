@@ -13,13 +13,13 @@ const prisma = new PrismaClient();
 
 const userData: Prisma.UserCreateInput[] = [
   {
-    username: 'admin',
-    passwordHash: bcrypt.hashSync('admin123', 12),
+    username: process.env.TEST_ADMIN_USERNAME as string,
+    passwordHash: bcrypt.hashSync(process.env.TEST_ADMIN_PASSWORD as string, 12),
     role: Role.ADMIN,
   },
   {
-    username: 'editor',
-    passwordHash: bcrypt.hashSync('editor123', 12),
+    username: process.env.TEST_EDITOR_USERNAME as string,
+    passwordHash: bcrypt.hashSync(process.env.TEST_EDITOR_PASSWORD as string, 12),
     role: Role.EDITOR,
   },
 ];
@@ -62,6 +62,12 @@ const daysFromNow = (days: number): Date => {
 
 async function main() {
   try {
+    console.log('Start cleaning...');
+    await prisma.$transaction([
+      prisma.poster?.deleteMany?.(),
+      prisma.user.deleteMany(),
+    ]);
+
     console.log('Start seeding...');
 
     const createdUsers = [];
