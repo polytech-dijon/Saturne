@@ -68,8 +68,8 @@ describe('Divia error paths', () => {
     cy.visit('/');
 
     cy.get('[data-testid="divia-error"]').should('be.visible').within(() => {
-      cy.contains('Error loading transportation data');
-      cy.contains('Unable to load transportation data');
+      cy.contains('Erreur lors du chargement des données de transport');
+      cy.contains('Impossible de charger les données de transport');
     });
     cy.get('[data-testid="divia-card"]').should('not.exist');
 
@@ -81,8 +81,8 @@ describe('Divia error paths', () => {
     cy.visit('/');
 
     cy.get('[data-testid="divia-error"]').should('be.visible').within(() => {
-      cy.contains('Error loading transportation data');
-      cy.contains('Incomplete station data received.');
+      cy.contains('Erreur lors du chargement des données de transport');
+      cy.contains('Données de station incomplètes reçues.');
     });
 
     cy.clearCookie('divia-test');

@@ -34,6 +34,6 @@ describe('LoginPage', () => {
     const link = screen.getByRole('link', { name: /saturne/i });
     expect(link).toHaveAttribute('href', '/');
 
-    expect(screen.getByAltText('Saturne logo')).toBeInTheDocument();
+    expect(screen.getByAltText('Logo Saturne')).toBeInTheDocument();
   });
 });

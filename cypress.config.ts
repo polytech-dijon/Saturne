@@ -86,7 +86,7 @@ export default defineConfig({
             'npx',
             ['tsx', seedPath],
             {
-              stdio: 'inherit',
+              stdio: 'ignore',
               env: envForDb,
             },
           );
