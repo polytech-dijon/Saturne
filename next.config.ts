@@ -12,8 +12,13 @@ const nextConfig: NextConfig = {
         hostname: parsedUrl.hostname,
         pathname: '/api/uploads/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'media.divia.fr',
+        pathname: '/**',
+      },
     ],
-  },
+  }
 };
 
 export default nextConfig;
