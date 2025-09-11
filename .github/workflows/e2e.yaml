@@ -28,7 +28,6 @@ jobs:
           NEXT_PUBLIC_API_URL=https://mercure.bde-polytech-dijon.com/api
           AUTH_SECRET=dev-ci-only-not-secret
           EOF
-          npx -y auth@latest secret
 
       - name: Run Cypress E2E in Docker
         run: |

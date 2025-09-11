@@ -11,10 +11,12 @@ services:
       - "5555:5555"
     volumes:
       - .:/app
+      - saturne-node-modules-dev:/app/node_modules
+      - saturne-next-cache-dev:/app/.next
     environment:
       NODE_ENV: development
       NEXT_TELEMETRY_DISABLED: 1
-    command: npm run dev
+    command: sh -c "npx prisma generate && npm run dev"
     depends_on:
       - postgres
 
@@ -26,6 +28,11 @@ services:
       - saturne-postgres-data-dev:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   cypress:
     profiles: [ "e2e" ]
@@ -33,14 +40,20 @@ services:
     working_dir: /e2e
     depends_on:
       - app
+      - postgres
     env_file:
       - .env.local
     environment:
       CYPRESS_baseUrl: http://app:3000
     volumes:
       - .:/e2e
+      - saturne-node-modules-dev:/e2e/node_modules
     command: [ "--headless" ]
 
 volumes:
   saturne-postgres-data-dev:
+    driver: local
+  saturne-node-modules-dev:
+    driver: local
+  saturne-next-cache-dev:
     driver: local
