@@ -1,6 +1,6 @@
 import React from 'react';
 import '@testing-library/jest-dom';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { LoginForm } from '@/components/LoginForm';
 import { toast } from 'sonner';
 
@@ -23,14 +23,13 @@ describe('LoginForm component', () => {
   let useActionStateMock: jest.Mock;
 
   beforeEach(() => {
-    // Acquire the mocked hook
     useActionStateMock = React.useActionState as jest.Mock;
     jest.clearAllMocks();
   });
 
   it('renders labels, inputs, button, and link with correct attributes', () => {
     useActionStateMock.mockReturnValue([{ fieldErrors: {}, serverError: null }, mockAction, false]);
-    render(<LoginForm />);
+    render(<LoginForm/>);
     // Inputs
     const userInput = screen.getByLabelText('Identifiant');
     expect(userInput).toHaveAttribute('id', 'username');
@@ -52,14 +51,14 @@ describe('LoginForm component', () => {
       mockAction,
       false,
     ]);
-    render(<LoginForm />);
+    render(<LoginForm/>);
     expect(screen.getByText('Identifiant requis')).toBeVisible();
     expect(screen.getByText('Mot de passe requis')).toBeVisible();
   });
 
   it('hides error paragraphs when no fieldErrors', () => {
     useActionStateMock.mockReturnValue([{ fieldErrors: {}, serverError: null }, mockAction, false]);
-    const { container } = render(<LoginForm />);
+    const { container } = render(<LoginForm/>);
     // Both error <p> elements should have the 'invisible' class
     const invisibleParas = container.querySelectorAll('p.invisible');
     expect(invisibleParas).toHaveLength(2);
@@ -67,19 +66,37 @@ describe('LoginForm component', () => {
 
   it('disables submit button when pending is true', () => {
     useActionStateMock.mockReturnValue([{ fieldErrors: {}, serverError: null }, mockAction, true]);
-    render(<LoginForm />);
+    render(<LoginForm/>);
     expect(screen.getByRole('button', { name: /se connecter/i })).toBeDisabled();
   });
 
   it('calls toast.error when serverError is present and pending is false', () => {
     useActionStateMock.mockReturnValue([{ fieldErrors: {}, serverError: 'Erreur serveur' }, mockAction, false]);
-    render(<LoginForm />);
+    render(<LoginForm/>);
     expect(toast.error).toHaveBeenCalledWith('Erreur serveur');
   });
 
   it('does not call toast.error when pending is true', () => {
     useActionStateMock.mockReturnValue([{ fieldErrors: {}, serverError: 'Erreur réseau' }, mockAction, true]);
-    render(<LoginForm />);
+    render(<LoginForm/>);
     expect(toast.error).not.toHaveBeenCalled();
+  });
+
+  it('updates the username on change and clears it when a serverError appears', () => {
+    // Initial render: pending true, no error (so we can type)
+    useActionStateMock.mockReturnValue([{ fieldErrors: {}, serverError: null }, mockAction, true]);
+    const { rerender } = render(<LoginForm/>);
+    const userInput = screen.getByLabelText('Identifiant') as HTMLInputElement;
+
+    // Simulate typing
+    fireEvent.change(userInput, { target: { value: 'alice' } });
+    expect(userInput).toHaveValue('alice');
+
+    // Now simulate a failed submit result: pending false + server error
+    useActionStateMock.mockReturnValue([{ fieldErrors: {}, serverError: 'Erreur serveur' }, mockAction, false]);
+    rerender(<LoginForm/>);
+
+    expect(toast.error).toHaveBeenCalledWith('Erreur serveur');
+    expect(userInput).toHaveValue(''); // cleared by useEffect
   });
 });

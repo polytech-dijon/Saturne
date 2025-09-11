@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { render, screen, act, waitFor } from '@testing-library/react';
 import { PosterCarousel, SkeletonCarousel } from '@/components/PosterCarousel';
 import { Poster } from '@/lib/actions';
@@ -43,7 +44,7 @@ jest.useFakeTimers();
 
 describe('SkeletonCarousel', () => {
   it('renders the skeleton with correct number of items', () => {
-    render(<SkeletonCarousel />);
+    render(<SkeletonCarousel/>);
     expect(document.querySelectorAll('[data-slot="skeleton"]')).toHaveLength(3);
   });
 });
@@ -57,7 +58,7 @@ describe('PosterCarousel', () => {
 
   it('renders posters correctly', async () => {
     await act(async () => {
-      render(<PosterCarousel posters={new Promise<Poster[]>(resolve => resolve(mockPosters))} />);
+      render(<PosterCarousel posters={new Promise<Poster[]>(resolve => resolve(mockPosters))}/>);
     });
 
     await waitFor(() => {
@@ -70,7 +71,7 @@ describe('PosterCarousel', () => {
   it('applies correct responsive classes based on poster count', async () => {
     let rerender: (ui: ReactNode) => void;
     await act(async () => {
-      rerender = render(<PosterCarousel posters={new Promise<Poster[]>(resolve => resolve(mockPosters))} />).rerender;
+      rerender = render(<PosterCarousel posters={new Promise<Poster[]>(resolve => resolve(mockPosters))}/>).rerender;
     });
 
     // With 3 posters, should use sm:basis-1/2
@@ -84,7 +85,7 @@ describe('PosterCarousel', () => {
     ];
 
     await act(async () => {
-      rerender(<PosterCarousel posters={new Promise<Poster[]>(resolve => resolve(manyPosters))} />);
+      rerender(<PosterCarousel posters={new Promise<Poster[]>(resolve => resolve(manyPosters))}/>);
     });
     // With 5 posters, should use sm:basis-1/3
     expect(screen.getAllByTestId('carousel-item')[0].className).toContain('sm:basis-1/3');
@@ -92,7 +93,7 @@ describe('PosterCarousel', () => {
     // Test with 2 posters
     const fewPosters = mockPosters.slice(0, 2);
     await act(async () => {
-      rerender(<PosterCarousel posters={new Promise<Poster[]>(resolve => resolve(fewPosters))} />);
+      rerender(<PosterCarousel posters={new Promise<Poster[]>(resolve => resolve(fewPosters))}/>);
     });
     // With 2 posters, should use sm:basis-full
     expect(screen.getAllByTestId('carousel-item')[0].className).toContain('sm:basis-full');
@@ -100,10 +101,10 @@ describe('PosterCarousel', () => {
 
   it('applies and removes transform scale on selected slide', async () => {
     await act(async () => {
-      render(<PosterCarousel posters={new Promise<Poster[]>(resolve => resolve(mockPosters))} />);
+      render(<PosterCarousel posters={new Promise<Poster[]>(resolve => resolve(mockPosters))}/>);
     });
 
-    // Verify initial transform scale is applied
+    // Verify the initial transform scale is applied
     expect(mockApi.slideNodes()[0].firstChild.style.transform).toBe('scale(2)');
     expect(mockApi.slideNodes()[0].style.zIndex).toBe('1');
 
@@ -121,7 +122,7 @@ describe('PosterCarousel', () => {
 
   it('handles pointer events correctly', async () => {
     await act(async () => {
-      render(<PosterCarousel posters={new Promise<Poster[]>(resolve => resolve(mockPosters))} />);
+      render(<PosterCarousel posters={new Promise<Poster[]>(resolve => resolve(mockPosters))}/>);
     });
 
     // Simulate pointer down
@@ -146,10 +147,10 @@ describe('PosterCarousel', () => {
 
   it('triggers scale on autoplay:timerset event', async () => {
     await act(async () => {
-      render(<PosterCarousel posters={new Promise<Poster[]>(resolve => resolve(mockPosters))} />);
+      render(<PosterCarousel posters={new Promise<Poster[]>(resolve => resolve(mockPosters))}/>);
     });
 
-    const call = mockApi.on.mock.calls.find((call: any[]) => call[0] === 'autoplay:timerset');
+    const call = mockApi.on.mock.calls.find((call: string[]) => call[0] === 'autoplay:timerset');
     const autoplayHandler = call && call[1];
     expect(typeof autoplayHandler).toBe('function');
 
@@ -163,16 +164,14 @@ describe('PosterCarousel', () => {
 
   it('resets zIndex of all slides to 0 after transition duration on pointerDown event', async () => {
     await act(async () => {
-      render(<PosterCarousel posters={new Promise<Poster[]>(resolve => resolve(mockPosters))} />);
+      render(<PosterCarousel posters={new Promise<Poster[]>(resolve => resolve(mockPosters))}/>);
     });
 
     // Find and trigger the pointerDown event handler to start zIndex reset timer
     const pointerDownHandler = mockApi.on.mock.calls.find(
-      (call: any[]) => call[0] === 'pointerDown',
+      (call: string[]) => call[0] === 'pointerDown',
     )?.[1];
-    act(() => {
-      pointerDownHandler && pointerDownHandler();
-    });
+    act(pointerDownHandler);
 
     // Fast-forward the timer to run the resetZIndexTimer callback
     act(() => {

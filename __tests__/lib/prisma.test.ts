@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import requireActual = jest.requireActual;
 
 const env = process.env;

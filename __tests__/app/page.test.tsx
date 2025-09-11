@@ -22,15 +22,6 @@ jest.mock('@/components/PosterCarousel', () => ({
   SkeletonCarousel: () => <div data-testid="skeleton-carousel">Mock Skeleton</div>,
 }));
 
-// Mock Suspense to simply render its children
-jest.mock('react', () => {
-  const originalReact = jest.requireActual('react');
-  return {
-    ...originalReact,
-    Suspense: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-  };
-});
-
 describe('Home Page', () => {
   it('renders the Divia component', async () => {
     render(await Home());
