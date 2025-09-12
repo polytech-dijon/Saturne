@@ -48,7 +48,7 @@ function CardWrapper({ children, ...props }: { children: React.ReactNode } & Rea
           <div className="flex flex-row justify-center items-center">
             {children}
           </div>
-          <ScrollBar orientation="horizontal" className="opacity-50"/>
+          <ScrollBar orientation="horizontal" className="opacity-50" />
         </ScrollArea>
       </Card>
     </div>
@@ -60,7 +60,7 @@ function ItemWrapper({ header, content }: { header: React.ReactNode, content: Re
     <div className="h-full flex justify-center items-center sm:basis-1/3 px-6">
       <div className="h-full flex flex-col justify-around gap-2 2xl:gap-4">
         <CardHeader className="px-0">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center">
             {header}
           </div>
         </CardHeader>
@@ -78,7 +78,7 @@ function CardSeparator(index: number) {
   if (index === 0) return null;
   return (
     <div className="h-18 2xl:h-25">
-      <Separator orientation="vertical" className="rounded-full"/>
+      <Separator orientation="vertical" className="rounded-full" />
     </div>);
 }
 
@@ -91,16 +91,16 @@ function SkeletonCard() {
           <ItemWrapper
             header={
               <>
-                <Skeleton className="h-6 w-10 md:h-10 md:w-15 2xl:h-12 2xl:w-20 rounded-md bg-muted-foreground"/>
+                <Skeleton className="h-6 w-10 md:h-10 md:w-15 2xl:h-12 2xl:w-20 rounded-md bg-muted-foreground mr-2" />
                 <div>
-                  <Skeleton className="w-10 md:h-5 md:w-30 mb-1 bg-foreground"/>
-                  <Skeleton className="md:h-3 md:w-15 2xl:h-5 2xl:w-20 bg-muted-foreground"/>
+                  <Skeleton className="w-6 md:h-5 md:w-20 mb-1 bg-foreground" />
+                  <Skeleton className="md:h-3 md:w-15 2xl:h-5 2xl:w-20 bg-muted-foreground" />
                 </div>
               </>}
             content={
               [0, 1].map((i) => (
-                <Skeleton key={i} className="md:h-5 md:w-14 2xl:h-8 2xl:w-18 rounded-full bg-primary"/>
-              ))}/>
+                <Skeleton key={i} className="md:h-5 md:w-14 2xl:h-8 2xl:w-18 rounded-full bg-primary" />
+              ))} />
         </Fragment>
       ))}
     </CardWrapper>
@@ -116,9 +116,9 @@ function DataCard({ diviaInfo }: { diviaInfo: DiviaInfo }) {
           <ItemWrapper
             header={
               <>
-                <div className="flex items-center bg-muted-foreground p-1.5 2xl:p-2 rounded-md">
+                <div className="flex items-center bg-muted-foreground p-1.5 2xl:p-2 rounded-md shrink-0 mr-2">
                   <Image src={stop.line.icon} alt={stop.line.name} width={48} height={25}
-                       className="h-6 2xl:h-8 rounded-[0.3rem]" />
+                         className="h-6 2xl:h-8 w-auto rounded-[0.3rem] shrink-0" />
                 </div>
                 <div>
                   <CardTitle
@@ -136,7 +136,7 @@ function DataCard({ diviaInfo }: { diviaInfo: DiviaInfo }) {
                         <span className={`h-2 w-2 2xl:h-3 2xl:w-3 rounded-full ${
                           formattedTime === 'À quai' ? 'bg-green-500' :
                             !formattedTime.includes('h') ? 'bg-amber-500' : 'bg-red-500'
-                        }`}/>
+                        }`} />
                         {formattedTime}
                       </Badge>
                     );
@@ -144,7 +144,7 @@ function DataCard({ diviaInfo }: { diviaInfo: DiviaInfo }) {
                 </div>
               ) : (
                 <div className="text-sm text-muted-foreground">Aucune arrivée imminente</div>
-              )}/>
+              )} />
         </Fragment>
       ))}
     </CardWrapper>
@@ -174,7 +174,7 @@ export default function Divia() {
       <Alert variant="destructive"
              className="mx-auto w-auto min-w-max left-1/2 top-[8dvh] absolute transform -translate-x-1/2 -translate-y-1/2
                         border-destructive-foreground bg-background" data-testid="divia-error">
-        <AlertCircle className="h-4 w-4"/>
+        <AlertCircle className="h-4 w-4" />
         <AlertTitle>Erreur lors du chargement des données de transport</AlertTitle>
         <AlertDescription>
           {error || 'Données de station incomplètes reçues.'}
@@ -183,7 +183,7 @@ export default function Divia() {
     );
   }
 
-  if (!diviaInfo) return <SkeletonCard/>;
+  if (!diviaInfo) return <SkeletonCard />;
 
-  return <DataCard diviaInfo={diviaInfo}/>;
+  return <DataCard diviaInfo={diviaInfo} />;
 }
