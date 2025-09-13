@@ -15,9 +15,8 @@ enum Role {
 
 enum PosterStatus {
   DRAFT
-  SCHEDULED
-  PUBLISHED
-  ARCHIVED
+  READY
+  DISABLED
 }
 
 model User {
@@ -34,15 +33,18 @@ model Poster {
   id              Int          @id @default(autoincrement())
   title           String
   description     String?
-  filePath        String
-  fileSize        Int // in bytes
-  fileType        String // e.g. "image/png"
   scheduledAt     DateTime? // start broadcasting date/time
   deleteAt        DateTime? // automatic deletion date/time
   displayDuration Int // display duration in seconds
   status          PosterStatus @default(DRAFT)
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
-  createdBy       Int
-  creator         User         @relation(fields: [createdBy], references: [id])
+
+  createdBy Int
+  creator   User @relation(fields: [createdBy], references: [id])
+
+  filePath String @unique // ex: "2025/09/uuid.ext" relative to UPLOAD_ROOT
+  fileMime String // image/png, video/mp4, ...
+  fileSize Int // bytes
+  fileName String // original name
 }

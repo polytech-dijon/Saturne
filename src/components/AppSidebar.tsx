@@ -20,22 +20,26 @@ import {
 import Image from 'next/image';
 import Saturne from '@/../public/saturne.png';
 import { Role } from '@prisma/client';
+import Link from 'next/link';
 
 const nav = [
   {
     title: 'Mes posters',
-    url: '/dashboard/mes-posters',
+    url: '/dashboard/posters',
     icon: IconHome,
+    onlyAdmin: false,
   },
   {
     title: 'Tous les posters',
-    url: '/dashboard/tous-les-posters',
+    url: '/dashboard/all-posters',
     icon: IconFolder,
+    onlyAdmin: true,
   },
   {
     title: 'Utilisateurs',
-    url: '/dashboard/utilisateurs',
+    url: '/dashboard/users',
     icon: IconUsers,
+    onlyAdmin: true,
   },
 ];
 
@@ -51,10 +55,10 @@ export function AppSidebar({ user, ...props }: React.ComponentProps<typeof Sideb
               asChild
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
-              <a href="#">
+              <Link href="/">
                 <Image src={Saturne} alt="Logo Saturne" className="!size-5" />
                 <span className="text-base font-semibold">Saturne</span>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

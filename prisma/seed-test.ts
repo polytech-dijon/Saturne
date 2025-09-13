@@ -3,13 +3,18 @@ import path from 'path';
 import fs from 'fs';
 import assert from 'assert';
 import bcrypt from 'bcryptjs';
+import { randomUUID } from 'crypto';
+import { mkdir, writeFile } from 'fs/promises';
 
 if (process.env.NODE_ENV === 'production') {
-  console.error('Seeding is disabled in production environment');
+  console.error('This seeding is disabled in production environment');
   process.exit(1);
 }
 
 const prisma = new PrismaClient();
+
+if (!process.env.UPLOAD_ROOT) throw new Error('UPLOAD_ROOT env var is not set');
+const ROOT = process.env.UPLOAD_ROOT;
 
 const userData: Prisma.UserCreateInput[] = [
   {
@@ -23,30 +28,6 @@ const userData: Prisma.UserCreateInput[] = [
     role: Role.EDITOR,
   },
 ];
-
-const getFileInfo = (filepath: string) => {
-  const stats = fs.statSync(filepath);
-  const fileSizeInBytes = stats.size;
-  const extension = path.extname(filepath).toLowerCase();
-
-  const mimeTypes: Record<string, string> = {
-    '.png': 'image/png',
-    '.jpg': 'image/jpeg',
-    '.jpeg': 'image/jpeg',
-    '.gif': 'image/gif',
-    '.webp': 'image/webp',
-    '.svg': 'image/svg+xml',
-    '.bmp': 'image/bmp',
-  };
-
-  const fileType = mimeTypes[extension] || 'application/octet-stream';
-
-  return {
-    filePath: filepath,
-    fileSize: fileSizeInBytes,
-    fileType,
-  };
-};
 
 const daysAgo = (days: number): Date => {
   const date = new Date();
@@ -88,33 +69,32 @@ async function main() {
     const assetDir = path.join(__dirname, 'seed-assets');
     const assetFiles = ['img_1.png', 'img_2.png', 'img_3.png', 'img_4.png'];
 
-    // Define poster configurations with appropriate scheduling and deletion
     const posterConfigs = [
       {
-        status: PosterStatus.PUBLISHED,
-        scheduledAt: daysAgo(7), // Published a week ago
-        deleteAt: null, // No deletion date
+        status: PosterStatus.READY,           // will be "PUBLISHED" in UI (derived dates)
+        scheduledAt: daysAgo(7),
+        deleteAt: null,
         creator: adminUser,
         displayDuration: 10,
       },
       {
-        status: PosterStatus.SCHEDULED,
-        scheduledAt: daysFromNow(3), // Will be published in 3 days
-        deleteAt: daysFromNow(10), // Will be deleted 10 days from now
+        status: PosterStatus.READY,           // "SCHEDULED" in UI
+        scheduledAt: daysFromNow(3),
+        deleteAt: daysFromNow(10),
         creator: editorUser,
         displayDuration: 20,
       },
       {
         status: PosterStatus.DRAFT,
-        scheduledAt: null, // No schedule date
-        deleteAt: null, // No deletion date
+        scheduledAt: null,
+        deleteAt: null,
         creator: adminUser,
         displayDuration: 15,
       },
       {
-        status: PosterStatus.ARCHIVED,
-        scheduledAt: daysAgo(30), // Was published 30 days ago
-        deleteAt: daysAgo(7), // Was deleted 7 days ago
+        status: PosterStatus.READY,           // "EXPIRED" in UI
+        scheduledAt: daysAgo(30),
+        deleteAt: daysAgo(7),
         creator: editorUser,
         displayDuration: 30,
       },
@@ -122,25 +102,52 @@ async function main() {
 
     for (const [index, file] of assetFiles.entries()) {
       const assetPath = path.join(assetDir, file);
-      const fileInfo = getFileInfo(assetPath);
       const config = posterConfigs[index];
+
+      // Read file buffer and infer mime type
+      const assetPathAbs = assetPath;
+      const fileBuffer = fs.readFileSync(assetPathAbs);
+      const fileName = path.basename(assetPathAbs);
+      const ext = path.extname(fileName).toLowerCase();
+      const mimeMap: Record<string, string> = {
+        '.png': 'image/png',
+        '.jpg': 'image/jpeg',
+        '.jpeg': 'image/jpeg',
+        '.gif': 'image/gif',
+        '.webp': 'image/webp',
+        '.svg': 'image/svg+xml',
+        '.bmp': 'image/bmp',
+        '.mp4': 'video/mp4',
+        '.mov': 'video/quicktime',
+        '.webm': 'video/webm',
+      };
+      const fileMime = mimeMap[ext] || 'application/octet-stream';
+      await mkdir(ROOT, { recursive: true });
+
+      const extOut = path.extname(fileName) || '';
+      const key = `${randomUUID()}${extOut}`;
+      const absOut = path.join(ROOT, key);
+      await writeFile(absOut, fileBuffer, { flag: 'wx' });
 
       const poster = await prisma.poster.create({
         data: {
           title: `Sample Poster ${index + 1}`,
           description: `Description for sample poster ${index + 1} by ${config.creator.username}`,
-          filePath: fileInfo.filePath,
-          fileSize: fileInfo.fileSize,
-          fileType: fileInfo.fileType,
           displayDuration: config.displayDuration,
           status: config.status,
-          scheduledAt: config.scheduledAt,
-          deleteAt: config.deleteAt,
           createdBy: config.creator.id,
+
+          filePath: path.relative(ROOT, absOut),
+          fileMime: fileMime,
+          fileSize: fileBuffer.length,
+          fileName: fileName,
+
+          scheduledAt: config.scheduledAt ?? null,
+          deleteAt: config.deleteAt ?? null,
         },
       });
 
-      console.log(`Created poster with id: ${poster.id}, title: ${poster.title}, status: ${poster.status} by ${config.creator.username}`);
+      console.log(`Created poster #${poster.id} "${poster.title}" (status=${poster.status}) by ${config.creator.username}`);
     }
 
     console.log('Seeding finished.');

@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
-import Page from '@/app/dashboard/page';
+import Page from '@/app/dashboard/posters/page';
 import { auth } from '@/auth';
 
 jest.mock('@/auth', () => ({ auth: jest.fn() }));

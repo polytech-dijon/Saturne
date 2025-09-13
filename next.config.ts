@@ -18,7 +18,17 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
     ],
-  }
+  },
+  async redirects() {
+    return [
+      {
+        source: '/dashboard',
+        destination: '/dashboard/posters',
+        permanent: true,
+      },
+    ];
+  },
+
 };
 
 export default nextConfig;

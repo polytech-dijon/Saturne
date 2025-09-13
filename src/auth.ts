@@ -3,7 +3,6 @@ import Credentials from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
 import prisma from '@/lib/prisma';
 import { signInSchema } from '@/lib/zod';
-import { PasswordError, UsernameError } from '@/lib/errors';
 import { Role } from '@prisma/client';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
@@ -18,15 +17,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
       async authorize(credentials) {
         const parseResult = signInSchema.safeParse(credentials);
-        if (!parseResult.success) {
-          const issues = parseResult.error.issues;
-          const usernameIssues = issues.filter(issue => issue.path[0] === 'username');
-          const passwordIssues = issues.filter(issue => issue.path[0] === 'password');
-
-          if (usernameIssues.length > 0) throw new UsernameError(`${usernameIssues.map(i => i.message).join(', ')}`);
-          if (passwordIssues.length > 0) throw new PasswordError(`${passwordIssues.map(i => i.message).join(', ')}`);
-          throw new Error();
-        }
+        if (!parseResult.success) throw new Error();
         const { username, password } = parseResult.data;
         const safeCompare = async (password: string, realHash?: string) => {
           const fakeHash =

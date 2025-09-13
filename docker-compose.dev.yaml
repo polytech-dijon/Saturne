@@ -12,11 +12,12 @@ services:
     volumes:
       - .:/app
       - saturne-node-modules-dev:/app/node_modules
-      - saturne-next-cache-dev:/app/.next
+      - saturne-uploads-dev:/data/uploads
     environment:
       NODE_ENV: development
       NEXT_TELEMETRY_DISABLED: 1
-    command: sh -c "npx prisma generate && npm run dev"
+      UPLOAD_ROOT: /data/uploads
+    command: npm run dev
     depends_on:
       - postgres
 
@@ -55,5 +56,5 @@ volumes:
     driver: local
   saturne-node-modules-dev:
     driver: local
-  saturne-next-cache-dev:
+  saturne-uploads-dev:
     driver: local

@@ -27,6 +27,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { Role } from '@prisma/client';
+import { signOut } from 'next-auth/react';
 
 export function NavUser({
                           user,
@@ -92,7 +93,7 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => signOut()}>
               <IconLogout />
               Déconnexion
             </DropdownMenuItem>

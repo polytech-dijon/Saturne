@@ -1,17 +1,15 @@
-import { AppSidebar } from '@/components/AppSidebar';
-import { SectionCards } from '@/components/section-cards';
-import { SiteHeader } from '@/components/SiteHeader';
-import {
-  SidebarInset,
-  SidebarProvider,
-} from '@/components/ui/sidebar';
-
+import React, { ReactNode } from 'react';
 import { auth } from '@/auth';
-import React from 'react';
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+import { AppSidebar } from '@/components/AppSidebar';
+import { SiteHeader } from '@/components/SiteHeader';
 
-export default async function Page() {
+interface DashboardLayoutProps {
+  children: ReactNode;
+}
+
+export default async function DashboardLayout({ children }: DashboardLayoutProps) {
   const session = await auth();
-
   if (!session?.user) return null;
 
   return (
@@ -28,9 +26,7 @@ export default async function Page() {
         <SiteHeader />
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2">
-            <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-              <SectionCards />
-            </div>
+            {children}
           </div>
         </div>
       </SidebarInset>
