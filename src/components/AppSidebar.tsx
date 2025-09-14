@@ -22,7 +22,7 @@ import Saturne from '@/../public/saturne.png';
 import { Role } from '@prisma/client';
 import Link from 'next/link';
 
-const nav = [
+export const nav = [
   {
     title: 'Mes posters',
     url: '/dashboard/posters',

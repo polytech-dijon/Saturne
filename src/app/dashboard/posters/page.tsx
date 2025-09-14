@@ -13,8 +13,6 @@ export default async function Page() {
 
   return (
     <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-      <h1 className="text-2xl font-semibold tracking-tight">Posters</h1>
-
       {posters.length === 0 ? (
         <p className="text-muted-foreground">Aucun poster pour le moment.</p>
       ) : (
