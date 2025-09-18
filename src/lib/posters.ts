@@ -1,4 +1,4 @@
-import { PosterStatus } from '@prisma/client';
+import { Poster, PosterStatus } from '@prisma/client';
 
 export type PosterState = 'SCHEDULED' | 'PUBLISHED' | 'EXPIRED' | 'DISABLED' | 'DRAFT';
 
@@ -20,3 +20,5 @@ export function computePosterState(input: {
   if (now >= start && now < end) return 'PUBLISHED';
   return 'EXPIRED';
 }
+
+export type PosterWithCreator = Poster & { creator: { username: string; id: number } };
