@@ -21,6 +21,7 @@ export default async function DashboardLayout({ children }: DashboardLayoutProps
           '--header-height': 'calc(var(--spacing) * 12)',
         } as React.CSSProperties
       }
+      data-sidebar="1"
     >
       <AppSidebar variant="inset" user={session.user} />
       <SidebarInset>
