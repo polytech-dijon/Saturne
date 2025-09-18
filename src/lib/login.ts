@@ -23,7 +23,7 @@ export async function loginAction(
     await signIn('credentials', {
       username,
       password,
-      redirectTo: '/dashboard',
+      redirectTo: '/dashboard/posters',
     });
     return { fieldErrors: {}, serverError: null };
   } catch (error: unknown) {

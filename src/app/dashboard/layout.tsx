@@ -3,6 +3,7 @@ import { auth } from '@/auth';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
 import { SiteHeader } from '@/components/SiteHeader';
+import { redirect } from 'next/navigation';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -10,7 +11,7 @@ interface DashboardLayoutProps {
 
 export default async function DashboardLayout({ children }: DashboardLayoutProps) {
   const session = await auth();
-  if (!session?.user) return null;
+  if (!session?.user) return redirect('/login');
 
   return (
     <SidebarProvider

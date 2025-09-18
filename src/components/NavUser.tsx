@@ -26,7 +26,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { Role } from '@prisma/client';
+import type { Role } from '@prisma/client';
 import { signOut } from 'next-auth/react';
 
 export function NavUser({

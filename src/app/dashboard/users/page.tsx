@@ -1,6 +1,12 @@
 import { IconAlertOctagon } from '@tabler/icons-react';
+import { auth } from '@/auth';
+import { redirect } from 'next/navigation';
 
-export default function AllPostersPage() {
+export default async function UsersPage() {
+  const session = await auth();
+  if (!session?.user) return redirect(`/login?callbackUrl=${encodeURIComponent('/dashboard/users')}`);
+  if (session.user.role !== 'ADMIN') redirect('/dashboard');
+  
   return (
     <div className="flex flex-col items-center justify-center h-screen text-center">
       <IconAlertOctagon className="text-red-500 mb-4" size={64} />

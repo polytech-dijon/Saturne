@@ -7,7 +7,7 @@ import { Info, Clock, Pencil, Trash2, Eye, EyeOff } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { PosterStatus } from '@prisma/client';
-import { computePosterState, PosterWithCreator } from '@/lib/posters';
+import { computePosterState, PosterPossiblyWithCreator } from '@/lib/posters';
 
 function formatBytes(n: number) {
   if (n < 1024) return `${n} B`;
@@ -294,7 +294,6 @@ function BottomOverlay({
                          status,
                          createdAt,
                          updatedAt,
-                         showCreator = true,
                        }: {
   src: string;
   title: string;
@@ -304,7 +303,6 @@ function BottomOverlay({
   status: PosterStatus;
   createdAt: Date;
   updatedAt: Date;
-  showCreator?: boolean;
 }) {
   return (
     <div className="absolute z-3 w-full h-full flex items-end">
@@ -314,7 +312,7 @@ function BottomOverlay({
           {description && (
             <p className="mt-1 text-sm text-card-foreground/80 line-clamp-2">{description}</p>
           )}
-          {showCreator && (
+          {username && (
             <div className="mt-3 flex items-center justify-between">
               <CreatorMeta username={username} status={status} createdAt={new Date(createdAt)}
                            updatedAt={new Date(updatedAt)} />
@@ -327,7 +325,7 @@ function BottomOverlay({
   );
 }
 
-export function PosterCard({ poster, showCreator = true }: { poster: PosterWithCreator; showCreator?: boolean }) {
+export function PosterCard({ poster }: { poster: PosterPossiblyWithCreator; }) {
   const {
     title,
     description,
@@ -360,7 +358,6 @@ export function PosterCard({ poster, showCreator = true }: { poster: PosterWithC
         status={status}
         createdAt={createdAt}
         updatedAt={updatedAt}
-        showCreator={showCreator}
       />
       <TopBar
         status={status}

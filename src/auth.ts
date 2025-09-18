@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs';
 import prisma from '@/lib/prisma';
 import { signInSchema } from '@/lib/zod';
 import { Role } from '@prisma/client';
+import { User } from 'next-auth';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   trustHost: true,
@@ -36,11 +37,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   ],
   callbacks: {
     async jwt({ token, user }) {
-      if (user) token.role = user.role;
+      if (user) {
+        token.role = user.role;
+        token.id = user.id;
+      }
       return token;
     },
     async session({ session, token }) {
-      if (token?.role) session.user.role = token.role as Role;
+      if (session.user) {
+        if (token?.role) session.user.role = token.role as Role;
+        const id = token?.sub ?? token?.id;
+        if (id) (session.user as User).id = Number(id);
+      }
       return session;
     },
     async authorized({ auth }) {

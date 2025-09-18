@@ -21,4 +21,4 @@ export function computePosterState(input: {
   return 'EXPIRED';
 }
 
-export type PosterWithCreator = Poster & { creator: { username: string; id: number } };
+export type PosterPossiblyWithCreator = Poster & { creator?: { username: string; id: number } };

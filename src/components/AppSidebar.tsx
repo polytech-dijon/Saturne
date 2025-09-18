@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/sidebar';
 import Image from 'next/image';
 import Saturne from '@/../public/saturne.png';
-import { Role } from '@prisma/client';
+import type { Role } from '@prisma/client';
 import Link from 'next/link';
 
 export const nav = [
@@ -46,6 +46,11 @@ export const nav = [
 export function AppSidebar({ user, ...props }: React.ComponentProps<typeof Sidebar> & {
   user: { name: string, role: Role }
 }) {
+  const allowedURL = React.useMemo(
+    () => nav.filter((item) => !item.onlyAdmin || user.role === 'ADMIN'),
+    [user.role],
+  );
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -64,7 +69,7 @@ export function AppSidebar({ user, ...props }: React.ComponentProps<typeof Sideb
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={nav} />
+        <NavMain items={allowedURL} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={user} />
