@@ -17,50 +17,44 @@ export const ALLOWED_MIME_PREFIXES = ['image/', 'video/'] as const;
 export const MAX_UPLOAD_MB = 200;
 export const MAX_UPLOAD_BYTES = MAX_UPLOAD_MB * 1024 * 1024;
 
-/** Small helper: accepts a <input type="datetime-local"> (string) or empty */
-const zDatetimeLocalOptional = zfd
-  .text(z.string().trim().max(30).optional())
-  .transform((v) => (v ? new Date(v) : undefined))
-  .refine((d) => d === undefined || !Number.isNaN(d.getTime()), {
-    message: 'Date invalide',
-  });
-
-export const createPosterFormSchema = zfd.formData({
-  title: zfd.text(
-    z.string().trim().min(1, 'Titre requis').max(200, 'Titre trop long'),
-  ),
-  description: zfd.text(z.string().trim().max(2000)).optional(),
-
-  displayDuration: zfd
-    .numeric(
-      z
-        .number()
-        .int('Durée invalide')
-        .min(1, '≥ 1 seconde')
-        .max(120, '≤ 2 minutes'),
-    )
-    .default(10),
-
-  scheduledAt: zDatetimeLocalOptional,
-  deleteAt: zDatetimeLocalOptional,
-
-  saveAsDraft: zfd.checkbox().default(false),
-  
-  file: zfd
-    .file()
-    .refine((f) => !!f, 'Fichier requis')
-    .refine((f) => (f?.size ?? 0) > 0, 'Fichier vide')
-    .refine(
-      (f) => (f?.size ?? 0) <= MAX_UPLOAD_BYTES,
-      `Fichier trop volumineux (max ${MAX_UPLOAD_MB} MB)`,
-    )
-    .refine(
-      (f) => ALLOWED_MIME_PREFIXES.some((p) => (f?.type || '').startsWith(p)),
-      'Type de fichier non supporté (image/* ou video/*)',
-    ),
-})
+export const posterMetaSchema = z
+  .object({
+    title: z.string().trim().min(1, 'Titre requis').max(200, 'Titre trop long'),
+    description: z
+      .string()
+      .trim()
+      .max(2000, 'Description trop longue')
+      .optional()
+      .transform((v) => (v === '' ? undefined : v)),
+    displayDuration: z.coerce
+      .number()
+      .int('Durée invalide')
+      .min(1, '≥ 1 seconde')
+      .max(120, '≤ 2 minutes')
+      .default(10),
+    scheduledAt: z
+      .preprocess(
+        (v) => (typeof v === 'string' ? (v ? new Date(v) : undefined) : v),
+        z.date().optional(),
+      ),
+    deleteAt: z
+      .preprocess(
+        (v) => (typeof v === 'string' ? (v ? new Date(v) : undefined) : v),
+        z.date().optional(),
+      ),
+    saveAsDraft: z
+      .preprocess(
+        (v) =>
+          typeof v === 'string'
+            ? v === 'on' || v === 'true' || v === '1'
+            : typeof v === 'boolean'
+              ? v
+              : false,
+        z.boolean(),
+      )
+      .default(false),
+  })
   .superRefine((data, ctx) => {
-    // Cross-field rule: deleteAt >= scheduledAt if both are provided
     if (data.scheduledAt && data.deleteAt && data.deleteAt < data.scheduledAt) {
       ctx.addIssue({
         code: 'custom',
@@ -69,3 +63,21 @@ export const createPosterFormSchema = zfd.formData({
       });
     }
   });
+
+export const clientPosterMetaSchema = posterMetaSchema.safeExtend({
+  file: z
+    .union([
+      z.instanceof(File, { message: 'Fichier requis' }),
+      z.null(),
+    ])
+    .refine((f) => f instanceof File, { message: 'Fichier requis' })
+    .refine((f) => f && f.size > 0, { message: 'Fichier vide' })
+    .refine(
+      (f) => f && f.size <= MAX_UPLOAD_BYTES,
+      { message: `Fichier trop volumineux (max ${MAX_UPLOAD_MB} MB)` },
+    )
+    .refine(
+      (f) => f && ALLOWED_MIME_PREFIXES.some((p) => f.type.startsWith(p)),
+      { message: 'Type non supporté (image/* ou video/*)' },
+    ),
+});

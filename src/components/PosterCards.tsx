@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { ImagePlus } from 'lucide-react';
 
 interface CreatorSummary {
@@ -163,6 +164,7 @@ function ResultsMetaBar({
 }
 
 function EmptyFirstPoster() {
+  const pathname = usePathname();
   return (
     <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center">
       <ImagePlus className="mb-3 h-10 w-10 text-muted-foreground" aria-hidden="true" />
@@ -170,7 +172,7 @@ function EmptyFirstPoster() {
       <p className="mt-1 text-sm text-muted-foreground">Ajoutez une image ou une vidéo pour commencer à publier.</p>
       <div className="mt-4">
         <Button asChild>
-          <Link href="#">Nouveau poster</Link>
+          <Link href={`/dashboard/posters/new?redirect=${encodeURIComponent(pathname)}`}>Nouveau poster</Link>
         </Button>
       </div>
     </div>
