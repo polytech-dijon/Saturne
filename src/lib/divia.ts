@@ -50,7 +50,7 @@ export async function fetchDiviaData(): Promise<DiviaData> {
       const fakeResults: Arrival[][] = [[], [], []];
 
       if (mode === 'error') {
-        return { success: false, error: 'Failed to fetch Divia data (test)' };
+        return { success: false, error: 'Impossible de récupérer les données Divia (test)' };
       }
       if (mode === 'incomplete') {
         // Return fewer than 3 stops -> triggers your "incomplete" error branch
@@ -100,6 +100,6 @@ export async function fetchDiviaData(): Promise<DiviaData> {
     return cachedDiviaData;
   } catch (error) {
     console.error('Failed to fetch Divia data:', error);
-    return { success: false, error: 'Failed to fetch Divia data' };
+    return { success: false, error: 'Impossible de récupérer les données Divia' };
   }
 }

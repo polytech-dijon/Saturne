@@ -11,7 +11,17 @@ import { Calendar } from '@/components/ui/calendar';
 import { FormControl } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { clientPosterMetaSchema } from '@/lib/zod';
+import { clientPosterUpdateSchema } from '@/lib/zod';
+
+const dateFormatter = new Intl.DateTimeFormat('fr-FR', {
+  day: '2-digit',
+  month: '2-digit',
+  year: 'numeric',
+});
+
+function formatDateForDisplay(date: Date) {
+  return dateFormatter.format(date);
+}
 
 function formatTimeForInput(date: Date) {
   const hours = String(date.getHours()).padStart(2, '0');
@@ -21,7 +31,7 @@ function formatTimeForInput(date: Date) {
 }
 
 type PosterDateField = 'scheduledAt' | 'deleteAt';
-type PosterFormValues = z.input<typeof clientPosterMetaSchema>;
+type PosterFormValues = z.input<typeof clientPosterUpdateSchema>;
 
 export type DateTimePickerProps = {
   field: ControllerRenderProps<PosterFormValues, PosterDateField>;
@@ -31,6 +41,11 @@ export type DateTimePickerProps = {
 
 export function DateTimePicker({ field, placeholder, disabled }: DateTimePickerProps) {
   const [open, setOpen] = React.useState(false);
+  const [hasMounted, setHasMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setHasMounted(true);
+  }, []);
   const rawValue = field.value;
   let selected: Date | undefined;
   if (rawValue instanceof Date) {
@@ -77,7 +92,7 @@ export function DateTimePicker({ field, placeholder, disabled }: DateTimePickerP
               className="w-50 justify-between bg-card font-normal"
               disabled={disabled}
             >
-              {selected ? selected.toLocaleDateString() : placeholder}
+              {hasMounted && selected ? formatDateForDisplay(selected) : placeholder}
               <ChevronDownIcon className="h-4 w-4 shrink-0 opacity-60" />
             </Button>
           </FormControl>

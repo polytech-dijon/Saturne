@@ -60,3 +60,61 @@ export async function uploadPosterViaApi(file: File, meta: {
   }
   return { ok: true as const, id: payload?.id };
 }
+
+export async function updatePosterViaApi(
+  id: number,
+  meta: {
+    title: string;
+    description?: string;
+    displayDuration: number;
+    scheduledAt?: Date;
+    deleteAt?: Date;
+    saveAsDraft: boolean;
+  },
+  file?: File,
+) {
+  const headers: Record<string, string> = {
+    'x-title': meta.title,
+    'x-display-duration': String(meta.displayDuration),
+    'x-save-as-draft': meta.saveAsDraft ? '1' : '0',
+    'x-has-file': file ? '1' : '0',
+  };
+
+  if (meta.description) headers['x-description'] = meta.description;
+  if (meta.scheduledAt) headers['x-scheduled-at'] = meta.scheduledAt.toISOString();
+  if (meta.deleteAt) headers['x-delete-at'] = meta.deleteAt.toISOString();
+
+  let body: BodyInit;
+  if (file) {
+    headers['content-type'] = file.type || 'application/octet-stream';
+    headers['x-file-name'] = encodeURIComponent(file.name);
+    body = file;
+  } else {
+    headers['content-type'] = 'application/json';
+    body = '{}';
+  }
+
+  const res = await fetch(`/api/posters/${id}`, {
+    method: 'PATCH',
+    headers,
+    body,
+  });
+
+  let payload = null;
+  try {
+    payload = await res.json();
+  } catch {
+  }
+
+  if (!res.ok) {
+    const serverError = payload?.error || payload?.serverError || 'Erreur serveur';
+    return { ok: false as const, serverError };
+  }
+
+  return { ok: true as const, id: payload?.id };
+}
+
+export function safeRedirectPosterPath(input: string | undefined) {
+  if (!input) return undefined;
+  return input.startsWith('/dashboard') ? input : undefined;
+}

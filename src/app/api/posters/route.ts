@@ -3,16 +3,8 @@ import { auth } from '@/auth';
 import prisma from '@/lib/prisma';
 import { posterMetaSchema, ALLOWED_MIME_PREFIXES, MAX_UPLOAD_BYTES } from '@/lib/zod';
 import { PosterStatus } from '@prisma/client';
-import { mkdir, unlink } from 'node:fs/promises';
-import { createWriteStream } from 'node:fs';
-import { join, extname } from 'node:path';
-import { Readable } from 'node:stream';
-import { pipeline } from 'node:stream/promises';
-import crypto from 'node:crypto';
 import type { ReadableStream as NodeReadableStream } from 'node:stream/web';
-
-if (!process.env.UPLOAD_ROOT) throw new Error('UPLOAD_ROOT env var is not set');
-const ROOT = process.env.UPLOAD_ROOT;
+import { PosterFileTooLargeError, savePosterFile } from '@/lib/storage';
 export const runtime = 'nodejs';
 
 export async function POST(req: NextRequest) {
@@ -42,37 +34,24 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Type non supporté' }, { status: 415 });
   }
   const rawName = req.headers.get('x-file-name') || 'upload.bin';
-  const originalName = decodeURIComponent(rawName);
+  let originalName: string;
+  try {
+    originalName = decodeURIComponent(rawName);
+  } catch {
+    return NextResponse.json({ error: 'Nom de fichier invalide' }, { status: 400 });
+  }
 
   if (!req.body) return NextResponse.json({ error: 'Corps manquant' }, { status: 400 });
-  await mkdir(ROOT, { recursive: true });
-
-  const ext = extname(originalName) || '';
-  const key = crypto.randomUUID() + ext;
-  const abs = join(ROOT, key);
-
   const webStream = req.body as unknown as NodeReadableStream<Uint8Array>;
-  const nodeStream = Readable.fromWeb(webStream);
-  const ws = createWriteStream(abs, { flags: 'wx' });
-  let size = 0;
 
-  nodeStream.on('data', (chunk: Buffer) => {
-    size += chunk.length;
-    if (size > MAX_UPLOAD_BYTES) {
-      ws.destroy(new Error('Fichier trop volumineux'));
-      nodeStream.destroy(new Error('Fichier trop volumineux'));
-    }
-  });
-
+  let saved;
   try {
-    await pipeline(nodeStream, ws);
-  } catch (e: unknown) {
-    const message = e instanceof Error ? e.message : 'Échec du téléversement';
-    try {
-      await unlink(abs);
-    } catch {
-    }
-    return NextResponse.json({ error: message }, { status: 400 });
+    saved = await savePosterFile(webStream, mime, originalName, MAX_UPLOAD_BYTES);
+  } catch (error) {
+    const isTooLarge = error instanceof PosterFileTooLargeError;
+    const message = isTooLarge ? error.message : 'Échec du téléversement';
+    const status = isTooLarge ? 413 : 400;
+    return NextResponse.json({ error: message }, { status });
   }
 
   const poster = await prisma.poster.create({
@@ -83,10 +62,10 @@ export async function POST(req: NextRequest) {
       status: meta.saveAsDraft ? PosterStatus.DRAFT : PosterStatus.READY,
       createdBy: userId,
 
-      filePath: key,
-      fileMime: mime,
-      fileSize: size,
-      fileName: originalName,
+      filePath: saved.key,
+      fileMime: saved.mime,
+      fileSize: saved.size,
+      fileName: saved.name,
 
       scheduledAt: meta.scheduledAt ?? null,
       deleteAt: meta.deleteAt ?? null,

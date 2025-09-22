@@ -8,6 +8,8 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { PosterStatus } from '@prisma/client';
 import { computePosterState, PosterPossiblyWithCreator } from '@/lib/posters';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 function formatBytes(n: number) {
   if (n < 1024) return `${n} B`;
@@ -48,7 +50,8 @@ function formatDateTime(d: Date) {
   }).format(d);
 }
 
-function TopRightActions({ fileMime, fileSize, src, status, dims: dimsProp }: {
+function TopRightActions({ posterId, fileMime, fileSize, src, status, dims: dimsProp }: {
+  posterId: number;
   fileMime: string;
   fileSize: number;
   src: string;
@@ -77,6 +80,9 @@ function TopRightActions({ fileMime, fileSize, src, status, dims: dimsProp }: {
     sizeLine = `${dims.w}×${dims.h} • ${dims.w / g}:${dims.h / g}`;
   }
 
+  const pathname = usePathname();
+  const editHref = `/dashboard/posters/${posterId}/edit?redirect=${encodeURIComponent(pathname)}`;
+
   return (
     <div className="flex items-center gap-2 text-card-foreground">
       <Tooltip>
@@ -96,9 +102,13 @@ function TopRightActions({ fileMime, fileSize, src, status, dims: dimsProp }: {
 
       <Tooltip>
         <TooltipTrigger asChild>
-          <button aria-label="Éditer" className="rounded-full bg-background/70 p-1.5 backdrop-blur">
+          <Link
+            href={editHref}
+            className="rounded-full bg-background/70 p-1.5 backdrop-blur"
+            aria-label="Éditer"
+          >
             <Pencil className="h-4 w-4" />
-          </button>
+          </Link>
         </TooltipTrigger>
         <TooltipContent>Éditer</TooltipContent>
       </Tooltip>
@@ -264,7 +274,8 @@ function BackgroundLayer({ src, title, onImageLoad }: {
   );
 }
 
-function TopBar({ status, scheduledAt, deleteAt, fileMime, fileSize, src, dims }: {
+function TopBar({ posterId, status, scheduledAt, deleteAt, fileMime, fileSize, src, dims }: {
+  posterId: number;
   status: PosterStatus;
   scheduledAt: Date | null;
   deleteAt: Date | null;
@@ -279,7 +290,7 @@ function TopBar({ status, scheduledAt, deleteAt, fileMime, fileSize, src, dims }
         <StatusBadgesContent status={status} scheduledAt={scheduledAt} deleteAt={deleteAt} truncateRange />
       </div>
       <div className="flex items-center gap-2 pointer-events-auto">
-        <TopRightActions fileMime={fileMime} fileSize={fileSize} src={src} status={status} dims={dims} />
+        <TopRightActions posterId={posterId} fileMime={fileMime} fileSize={fileSize} src={src} status={status} dims={dims} />
       </div>
     </div>
   );
@@ -360,6 +371,7 @@ export function PosterCard({ poster }: { poster: PosterPossiblyWithCreator; }) {
         updatedAt={updatedAt}
       />
       <TopBar
+        posterId={poster.id}
         status={status}
         scheduledAt={scheduledAt}
         deleteAt={deleteAt}

@@ -64,20 +64,31 @@ export const posterMetaSchema = z
     }
   });
 
-export const clientPosterMetaSchema = posterMetaSchema.safeExtend({
-  file: z
-    .union([
-      z.instanceof(File, { message: 'Fichier requis' }),
-      z.null(),
-    ])
-    .refine((f) => f instanceof File, { message: 'Fichier requis' })
-    .refine((f) => f && f.size > 0, { message: 'Fichier vide' })
-    .refine(
-      (f) => f && f.size <= MAX_UPLOAD_BYTES,
-      { message: `Fichier trop volumineux (max ${MAX_UPLOAD_MB} MB)` },
-    )
-    .refine(
-      (f) => f && ALLOWED_MIME_PREFIXES.some((p) => f.type.startsWith(p)),
-      { message: 'Type non supporté (image/* ou video/*)' },
-    ),
+const posterFileSchema = z
+  .instanceof(File, { message: 'Fichier requis' })
+  .refine((f) => f.size > 0, { message: 'Fichier vide' })
+  .refine(
+    (f) => f.size <= MAX_UPLOAD_BYTES,
+    { message: `Fichier trop volumineux (max ${MAX_UPLOAD_MB} MB)` },
+  )
+  .refine(
+    (f) => ALLOWED_MIME_PREFIXES.some((p) => f.type.startsWith(p)),
+    { message: 'Type non supporté (image/* ou video/*)' },
+  )
+  .nullable();
+
+const clientPosterBaseSchema = posterMetaSchema.safeExtend({
+  file: posterFileSchema,
 });
+
+export const clientPosterCreateSchema = clientPosterBaseSchema.superRefine((data, ctx) => {
+  if (!(data.file instanceof File)) {
+    ctx.addIssue({
+      code: 'custom',
+      message: 'Fichier requis',
+      path: ['file'],
+    });
+  }
+});
+
+export const clientPosterUpdateSchema = clientPosterBaseSchema;

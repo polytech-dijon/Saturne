@@ -1,10 +1,13 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { auth } from '@/auth';
 import { createReadStream, statSync } from 'fs';
 import path from 'path';
 import { PosterStatus, Role } from '@prisma/client';
 import { Readable } from 'node:stream';
+import type { ReadableStream as NodeReadableStream } from 'node:stream/web';
+import { ALLOWED_MIME_PREFIXES, MAX_UPLOAD_BYTES, posterMetaSchema } from '@/lib/zod';
+import { deletePosterFile, PosterFileTooLargeError, savePosterFile, type SavedPosterFile } from '@/lib/storage';
 
 export const runtime = 'nodejs';
 if (!process.env.UPLOAD_ROOT) throw new Error('UPLOAD_ROOT env var is not set');
@@ -13,13 +16,13 @@ const ROOT = process.env.UPLOAD_ROOT;
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id: idParam } = await params;
   const id = Number(idParam);
-  if (!Number.isFinite(id)) return NextResponse.json({ error: 'Bad id' }, { status: 400 });
+  if (!Number.isFinite(id)) return NextResponse.json({ error: 'Identifiant invalide' }, { status: 400 });
 
   const poster = await prisma.poster.findUnique({
     where: { id },
     select: { filePath: true, fileMime: true, createdBy: true, status: true },
   });
-  if (!poster) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  if (!poster) return NextResponse.json({ error: 'Poster introuvable' }, { status: 404 });
 
   const session = await auth();
   const isPublished = poster.status === PosterStatus.READY;
@@ -31,7 +34,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     const uid = session.user.id ?? session.user?.id;
     allowed = role === Role.ADMIN || (!!uid && poster.createdBy === Number(uid));
   }
-  if (!allowed) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!allowed) return NextResponse.json({ error: 'Accès non autorisé' }, { status: 401 });
 
   const abs = path.join(ROOT, poster.filePath);
   const stat = statSync(abs);
@@ -75,4 +78,118 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       'Content-Length': String(chunkSize),
     },
   });
+}
+
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id: idParam } = await params;
+  const id = Number(idParam);
+  if (!Number.isFinite(id)) return NextResponse.json({ error: 'Identifiant invalide' }, { status: 400 });
+
+  const session = await auth();
+  if (!session?.user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+
+  const userId = Number(session.user.id);
+  if (!Number.isFinite(userId)) return NextResponse.json({ error: 'Utilisateur invalide' }, { status: 401 });
+  const isAdmin = session.user.role === Role.ADMIN;
+
+  const poster = await prisma.poster.findUnique({ where: { id } });
+  if (!poster) return NextResponse.json({ error: 'Poster introuvable' }, { status: 404 });
+
+  if (!isAdmin && poster.createdBy !== userId) {
+    return NextResponse.json({ error: 'Accès non autorisé' }, { status: 403 });
+  }
+
+  const headers = req.headers;
+  const metaInput = {
+    title: headers.get('x-title') || '',
+    description: headers.get('x-description') || undefined,
+    displayDuration: headers.get('x-display-duration') || String(poster.displayDuration),
+    scheduledAt: headers.get('x-scheduled-at') || undefined,
+    deleteAt: headers.get('x-delete-at') || undefined,
+    saveAsDraft: headers.get('x-save-as-draft') || (poster.status === PosterStatus.DRAFT ? '1' : '0'),
+  };
+
+  const parsed = posterMetaSchema.safeParse(metaInput);
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.issues[0]?.message || 'Validation failed' }, { status: 400 });
+  }
+  const meta = parsed.data;
+
+  const wantsFile = headers.get('x-has-file') === '1';
+
+  let filePath = poster.filePath;
+  let fileMime = poster.fileMime;
+  let fileSize = poster.fileSize;
+  let fileName = poster.fileName;
+
+  const oldFilePath = poster.filePath;
+  let savedFile: SavedPosterFile | null = null;
+  if (wantsFile) {
+    const mime = headers.get('content-type') || 'application/octet-stream';
+    if (!ALLOWED_MIME_PREFIXES.some((p) => mime.startsWith(p))) {
+      return NextResponse.json({ error: 'Type non supporté' }, { status: 415 });
+    }
+
+    const rawName = headers.get('x-file-name') || encodeURIComponent(poster.fileName);
+    let originalName: string;
+    try {
+      originalName = decodeURIComponent(rawName);
+    } catch {
+      return NextResponse.json({ error: 'Nom de fichier invalide' }, { status: 400 });
+    }
+
+    if (!req.body) return NextResponse.json({ error: 'Corps manquant' }, { status: 400 });
+    const webStream = req.body as unknown as NodeReadableStream<Uint8Array>;
+
+    try {
+      savedFile = await savePosterFile(webStream, mime, originalName, MAX_UPLOAD_BYTES);
+    } catch (error) {
+      const isTooLarge = error instanceof PosterFileTooLargeError;
+      const message = isTooLarge ? error.message : 'Échec du téléversement';
+      const status = isTooLarge ? 413 : 400;
+      return NextResponse.json({ error: message }, { status });
+    }
+
+    filePath = savedFile.key;
+    fileMime = savedFile.mime;
+    fileSize = savedFile.size;
+    fileName = savedFile.name;
+  }
+
+  let nextStatus = poster.status;
+  if (meta.saveAsDraft) {
+    nextStatus = PosterStatus.DRAFT;
+  } else if (poster.status === PosterStatus.DRAFT) {
+    nextStatus = PosterStatus.READY;
+  }
+
+  let updated;
+  try {
+    updated = await prisma.poster.update({
+      where: { id },
+      data: {
+        title: meta.title,
+        description: meta.description ?? null,
+        displayDuration: meta.displayDuration,
+        scheduledAt: meta.scheduledAt ?? null,
+        deleteAt: meta.deleteAt ?? null,
+        status: nextStatus,
+        filePath,
+        fileMime,
+        fileSize,
+        fileName,
+      },
+    });
+  } catch {
+    if (savedFile) {
+      await deletePosterFile(savedFile.key);
+    }
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
+  }
+
+  if (savedFile && oldFilePath && oldFilePath !== savedFile.key) {
+    await deletePosterFile(oldFilePath);
+  }
+
+  return NextResponse.json({ id: updated.id }, { status: 200 });
 }
