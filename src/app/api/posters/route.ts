@@ -1,17 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/auth';
 import prisma from '@/lib/prisma';
 import { posterMetaSchema, ALLOWED_MIME_PREFIXES, MAX_UPLOAD_BYTES } from '@/lib/zod';
 import { PosterStatus } from '@prisma/client';
 import type { ReadableStream as NodeReadableStream } from 'node:stream/web';
 import { PosterFileTooLargeError, savePosterFile } from '@/lib/storage';
+import { requireAuthenticatedUser } from '@/app/api/posters/_shared';
+
 export const runtime = 'nodejs';
 
 export async function POST(req: NextRequest) {
-  const session = await auth();
-  if (!session?.user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
-  const userId = session.user.id ?? session.user?.id;
-  if (!userId) return NextResponse.json({ error: 'Utilisateur invalide' }, { status: 401 });
+  const authContext = await requireAuthenticatedUser();
+  if (authContext instanceof NextResponse) return authContext;
+  const { userId } = authContext;
 
   const headers = req.headers;
   const metaInput = {

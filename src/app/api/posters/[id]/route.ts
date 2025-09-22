@@ -8,15 +8,16 @@ import { Readable } from 'node:stream';
 import type { ReadableStream as NodeReadableStream } from 'node:stream/web';
 import { ALLOWED_MIME_PREFIXES, MAX_UPLOAD_BYTES, posterMetaSchema } from '@/lib/zod';
 import { deletePosterFile, PosterFileTooLargeError, savePosterFile, type SavedPosterFile } from '@/lib/storage';
+import { parsePosterId, PosterRouteParams, requireAuthenticatedUser } from '@/app/api/posters/_shared';
 
 export const runtime = 'nodejs';
 if (!process.env.UPLOAD_ROOT) throw new Error('UPLOAD_ROOT env var is not set');
 const ROOT = process.env.UPLOAD_ROOT;
 
-export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { id: idParam } = await params;
-  const id = Number(idParam);
-  if (!Number.isFinite(id)) return NextResponse.json({ error: 'Identifiant invalide' }, { status: 400 });
+export async function GET(req: Request, { params }: { params: PosterRouteParams }) {
+  const idResult = await parsePosterId(params);
+  if (idResult instanceof NextResponse) return idResult;
+  const id = idResult;
 
   const poster = await prisma.poster.findUnique({
     where: { id },
@@ -80,17 +81,14 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   });
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id: idParam } = await params;
-  const id = Number(idParam);
-  if (!Number.isFinite(id)) return NextResponse.json({ error: 'Identifiant invalide' }, { status: 400 });
+export async function PATCH(req: NextRequest, { params }: { params: PosterRouteParams }) {
+  const idResult = await parsePosterId(params);
+  if (idResult instanceof NextResponse) return idResult;
+  const id = idResult;
 
-  const session = await auth();
-  if (!session?.user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
-
-  const userId = Number(session.user.id);
-  if (!Number.isFinite(userId)) return NextResponse.json({ error: 'Utilisateur invalide' }, { status: 401 });
-  const isAdmin = session.user.role === Role.ADMIN;
+  const authContext = await requireAuthenticatedUser();
+  if (authContext instanceof NextResponse) return authContext;
+  const { userId, isAdmin } = authContext;
 
   const poster = await prisma.poster.findUnique({ where: { id } });
   if (!poster) return NextResponse.json({ error: 'Poster introuvable' }, { status: 404 });
@@ -109,11 +107,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     saveAsDraft: headers.get('x-save-as-draft') || (poster.status === PosterStatus.DRAFT ? '1' : '0'),
   };
 
-  const parsed = posterMetaSchema.safeParse(metaInput);
-  if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.issues[0]?.message || 'Validation failed' }, { status: 400 });
+  const metaResult = posterMetaSchema.safeParse(metaInput);
+  if (!metaResult.success) {
+    return NextResponse.json({ error: metaResult.error.issues[0]?.message || 'Validation failed' }, { status: 400 });
   }
-  const meta = parsed.data;
+  const meta = metaResult.data;
 
   const wantsFile = headers.get('x-has-file') === '1';
 
@@ -192,4 +190,37 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   }
 
   return NextResponse.json({ id: updated.id }, { status: 200 });
+}
+
+export async function DELETE(_req: NextRequest, { params }: { params: PosterRouteParams }) {
+  const idResult = await parsePosterId(params);
+  if (idResult instanceof NextResponse) return idResult;
+  const id = idResult;
+
+  const authContext = await requireAuthenticatedUser();
+  if (authContext instanceof NextResponse) return authContext;
+  const { userId, isAdmin } = authContext;
+
+  const poster = await prisma.poster.findUnique({
+    where: { id },
+    select: { createdBy: true, filePath: true },
+  });
+
+  if (!poster) {
+    return NextResponse.json({ error: 'Poster introuvable' }, { status: 404 });
+  }
+
+  if (!isAdmin && poster.createdBy !== userId) {
+    return NextResponse.json({ error: 'Accès non autorisé' }, { status: 403 });
+  }
+
+  try {
+    await prisma.poster.delete({ where: { id } });
+  } catch {
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
+  }
+
+  await deletePosterFile(poster.filePath);
+
+  return NextResponse.json({ ok: true }, { status: 200 });
 }

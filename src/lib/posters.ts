@@ -1,5 +1,32 @@
 import { Poster, PosterStatus } from '@prisma/client';
 
+type JsonRecord = Record<string, unknown>;
+
+function isJsonRecord(input: unknown): input is JsonRecord {
+  return typeof input === 'object' && input !== null;
+}
+
+async function safeJson(res: Response): Promise<unknown> {
+  try {
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
+function extractServerError(payload: unknown, fallback: string) {
+  if (!isJsonRecord(payload)) return fallback;
+  const { error, serverError, message } = payload as {
+    error?: unknown;
+    serverError?: unknown;
+    message?: unknown;
+  };
+  if (typeof error === 'string') return error;
+  if (typeof serverError === 'string') return serverError;
+  if (typeof message === 'string') return message;
+  return fallback;
+}
+
 export type PosterState = 'SCHEDULED' | 'PUBLISHED' | 'EXPIRED' | 'DISABLED' | 'DRAFT';
 
 export function computePosterState(input: {
@@ -22,7 +49,6 @@ export function computePosterState(input: {
 }
 
 export type PosterPossiblyWithCreator = Poster & { creator?: { username: string; id: number } };
-
 
 export async function uploadPosterViaApi(file: File, meta: {
   title: string;
@@ -49,16 +75,14 @@ export async function uploadPosterViaApi(file: File, meta: {
     body: file,
   });
 
-  let payload = null;
-  try {
-    payload = await res.json();
-  } catch {
-  }
+  const payload = await safeJson(res);
   if (!res.ok) {
-    const serverError = payload?.error || payload?.serverError || 'Erreur serveur';
+    const serverError = extractServerError(payload, 'Erreur serveur');
     return { ok: false as const, serverError };
   }
-  return { ok: true as const, id: payload?.id };
+
+  const id = isJsonRecord(payload) && typeof payload.id === 'number' ? payload.id : undefined;
+  return { ok: true as const, id };
 }
 
 export async function updatePosterViaApi(
@@ -100,21 +124,54 @@ export async function updatePosterViaApi(
     body,
   });
 
-  let payload = null;
-  try {
-    payload = await res.json();
-  } catch {
-  }
+  const payload = await safeJson(res);
 
   if (!res.ok) {
-    const serverError = payload?.error || payload?.serverError || 'Erreur serveur';
+    const serverError = extractServerError(payload, 'Erreur serveur');
     return { ok: false as const, serverError };
   }
 
-  return { ok: true as const, id: payload?.id };
+  const updatedId = isJsonRecord(payload) && typeof payload.id === 'number' ? payload.id : undefined;
+  return { ok: true as const, id: updatedId };
 }
 
 export function safeRedirectPosterPath(input: string | undefined) {
   if (!input) return undefined;
   return input.startsWith('/dashboard') ? input : undefined;
+}
+
+export async function updatePosterStatusViaApi(id: number, status: PosterStatus) {
+  const res = await fetch(`/api/posters/${id}/status`, {
+    method: 'PATCH',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ status }),
+  });
+
+  const payload = await safeJson(res);
+
+  if (!res.ok) {
+    const serverError = extractServerError(payload, 'Erreur serveur');
+    return { ok: false as const, serverError };
+  }
+
+  const nextStatus = isJsonRecord(payload) && typeof payload.status === 'string'
+    ? (payload.status as PosterStatus)
+    : undefined;
+
+  return { ok: true as const, status: nextStatus };
+}
+
+export async function deletePosterViaApi(id: number) {
+  const res = await fetch(`/api/posters/${id}`, {
+    method: 'DELETE',
+  });
+
+  const payload = await safeJson(res);
+
+  if (!res.ok) {
+    const serverError = extractServerError(payload, 'Erreur serveur');
+    return { ok: false as const, serverError };
+  }
+
+  return { ok: true as const };
 }

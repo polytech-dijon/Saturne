@@ -4,12 +4,20 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Info, Clock, Pencil, Trash2, Eye, EyeOff } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import Image from 'next/image';
 import { PosterStatus } from '@prisma/client';
-import { computePosterState, PosterPossiblyWithCreator } from '@/lib/posters';
+import {
+  computePosterState,
+  PosterPossiblyWithCreator,
+  updatePosterStatusViaApi,
+  deletePosterViaApi,
+} from '@/lib/posters';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { toast } from 'sonner';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 
 function formatBytes(n: number) {
   if (n < 1024) return `${n} B`;
@@ -59,6 +67,10 @@ function TopRightActions({ posterId, fileMime, fileSize, src, status, dims: dims
   dims?: { w: number; h: number } | null
 }) {
   const [dims, setDims] = useState<{ w: number; h: number } | null>(dimsProp ?? null);
+  const [isTogglePending, startToggleTransition] = useTransition();
+  const [isDeletePending, startDeleteTransition] = useTransition();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     if (dimsProp) {
@@ -82,6 +94,49 @@ function TopRightActions({ posterId, fileMime, fileSize, src, status, dims: dims
 
   const pathname = usePathname();
   const editHref = `/dashboard/posters/${posterId}/edit?redirect=${encodeURIComponent(pathname)}`;
+
+  const handleToggle = () => {
+    if (!canToggle || isTogglePending || isDeletePending) return;
+    const nextStatus = isDisabled ? PosterStatus.READY : PosterStatus.DISABLED;
+    startToggleTransition(async () => {
+      try {
+        const result = await updatePosterStatusViaApi(posterId, nextStatus);
+        if (result.ok) {
+          toast.success(nextStatus === PosterStatus.READY ? 'Poster activé' : 'Poster désactivé');
+          router.refresh();
+        } else {
+          toast.error(result.serverError ?? 'Erreur lors de la mise à jour du poster');
+        }
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Erreur inattendue';
+        toast.error(message);
+      }
+    });
+  };
+
+  const handleDelete = () => {
+    if (isDeletePending) return;
+    startDeleteTransition(async () => {
+      try {
+        const result = await deletePosterViaApi(posterId);
+        if (result.ok) {
+          toast.success('Poster supprimé');
+          setDeleteDialogOpen(false);
+          router.refresh();
+        } else {
+          toast.error(result.serverError ?? 'Erreur lors de la suppression du poster');
+        }
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Erreur inattendue';
+        toast.error(message);
+      }
+    });
+  };
+
+  const handleDeleteDialogChange = (nextOpen: boolean) => {
+    if (isDeletePending) return;
+    setDeleteDialogOpen(nextOpen);
+  };
 
   return (
     <div className="flex items-center gap-2 text-card-foreground">
@@ -116,8 +171,13 @@ function TopRightActions({ posterId, fileMime, fileSize, src, status, dims: dims
       {canToggle && (
         <Tooltip>
           <TooltipTrigger asChild>
-            <button aria-label={isDisabled ? 'Activer' : 'Désactiver'}
-                    className="rounded-full bg-background/70 p-1.5 backdrop-blur">
+            <button
+              type="button"
+              aria-label={isDisabled ? 'Activer' : 'Désactiver'}
+              className="rounded-full bg-background/70 p-1.5 backdrop-blur"
+              onClick={handleToggle}
+              disabled={isTogglePending || isDeletePending}
+            >
               {isDisabled ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
             </button>
           </TooltipTrigger>
@@ -125,14 +185,45 @@ function TopRightActions({ posterId, fileMime, fileSize, src, status, dims: dims
         </Tooltip>
       )}
 
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <button aria-label="Supprimer" className="rounded-full bg-background/70 p-1.5 backdrop-blur">
-            <Trash2 className="h-4 w-4" />
-          </button>
-        </TooltipTrigger>
-        <TooltipContent>Supprimer</TooltipContent>
-      </Tooltip>
+      <Dialog open={deleteDialogOpen} onOpenChange={handleDeleteDialogChange}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <DialogTrigger asChild>
+              <button
+                type="button"
+                aria-label="Supprimer"
+                className="rounded-full bg-background/70 p-1.5 backdrop-blur"
+                disabled={isDeletePending || isTogglePending}
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            </DialogTrigger>
+          </TooltipTrigger>
+          <TooltipContent>Supprimer</TooltipContent>
+        </Tooltip>
+        <DialogContent showCloseButton={!isDeletePending}>
+          <DialogHeader>
+            <DialogTitle>Supprimer le poster ?</DialogTitle>
+            <DialogDescription>
+              Cette action est irréversible. Le média associé sera définitivement supprimé.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose asChild disabled={isDeletePending}>
+              <Button variant="outline" disabled={isDeletePending}>
+                Annuler
+              </Button>
+            </DialogClose>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={isDeletePending}
+            >
+              {isDeletePending ? 'Suppression...' : 'Supprimer'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
