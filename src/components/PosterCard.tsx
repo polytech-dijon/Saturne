@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Info, Clock, Pencil, Trash2, Eye, EyeOff } from 'lucide-react';
-import { useEffect, useState, useTransition } from 'react';
+import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
 import Image from 'next/image';
 import { PosterStatus } from '@prisma/client';
 import {
@@ -16,8 +16,26 @@ import {
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { toDurationParts } from '@/lib/utils';
+
+type AssetType = 'image' | 'video' | 'other';
+
+function getAssetType(mime: string): AssetType {
+  if (mime.startsWith('image/')) return 'image';
+  if (mime.startsWith('video/')) return 'video';
+  return 'other';
+}
 
 function formatBytes(n: number) {
   if (n < 1024) return `${n} B`;
@@ -30,11 +48,11 @@ function formatBytes(n: number) {
   return `${n.toFixed(1)} ${u[i]}`;
 }
 
-function formatDuration(s: number) {
-  if (s < 60) return `${s}\u00A0s`;
-  const m = Math.floor(s / 60);
-  const r = s % 60;
-  return `${String(m).padStart(2, '0')}:${String(r).padStart(2, '0')}`;
+function formatDurationLabel(seconds: number) {
+  const parts = toDurationParts(seconds);
+  if (!parts) return '--';
+  if (parts.roundedSeconds < 60) return `${parts.roundedSeconds} s`;
+  return `${String(parts.minutes).padStart(2, '0')}:${String(parts.seconds).padStart(2, '0')}`;
 }
 
 function gcd(a: number, b: number) {
@@ -58,7 +76,7 @@ function formatDateTime(d: Date) {
   }).format(d);
 }
 
-function TopRightActions({ posterId, fileMime, fileSize, src, status, dims: dimsProp }: {
+function TopRightActions({ posterId, fileMime, fileSize, status, dims }: {
   posterId: number;
   fileMime: string;
   fileSize: number;
@@ -66,22 +84,10 @@ function TopRightActions({ posterId, fileMime, fileSize, src, status, dims: dims
   status: PosterStatus;
   dims?: { w: number; h: number } | null
 }) {
-  const [dims, setDims] = useState<{ w: number; h: number } | null>(dimsProp ?? null);
   const [isTogglePending, startToggleTransition] = useTransition();
   const [isDeletePending, startDeleteTransition] = useTransition();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const router = useRouter();
-
-  useEffect(() => {
-    if (dimsProp) {
-      setDims(dimsProp);
-      return;
-    }
-    const probe = new window.Image();
-    probe.onload = () => setDims({ w: probe.naturalWidth, h: probe.naturalHeight });
-    probe.onerror = () => setDims(null);
-    probe.src = src;
-  }, [src, dimsProp]);
 
   const canToggle = status !== PosterStatus.DRAFT;
   const isDisabled = status === PosterStatus.DISABLED;
@@ -277,7 +283,7 @@ function TitleRow({ title, displayDuration }: { title: string; displayDuration: 
       <h3 className="text-lg font-semibold leading-snug line-clamp-2">{title}</h3>
       <div className="flex items-center gap-1 rounded-full bg-black/50 px-2 py-1 text-sm backdrop-blur">
         <Clock className="h-4 w-4" />
-        <span>{formatDuration(displayDuration)}</span>
+        <span>{formatDurationLabel(displayDuration)}</span>
       </div>
     </div>
   );
@@ -307,7 +313,7 @@ function CreatorMeta({ username, status, createdAt, updatedAt }: {
   );
 }
 
-function BlurBackdrop({ src, title }: { src: string; title: string }) {
+function BlurBackdrop({ src, title, assetType }: { src: string; title: string; assetType: AssetType }) {
   return (
     <>
       <div
@@ -316,7 +322,7 @@ function BlurBackdrop({ src, title }: { src: string; title: string }) {
         <div
           className="absolute z-2 w-full h-[120%] bottom-0 left-0 overflow-hidden blur-[18px] scale-x-110 scale-y-120">
           <div className="absolute z-2 bottom-0 left-0 w-full h-[85%] overflow-hidden">
-            <Image
+            {assetType === 'image' ? <Image
               alt={title}
               src={src}
               fill
@@ -324,7 +330,17 @@ function BlurBackdrop({ src, title }: { src: string; title: string }) {
               sizes="(max-width:640px) 100vw, (max-width:1024px) 50vw, 33vw"
               loading="lazy"
               unoptimized
-            />
+            /> : assetType === 'video' ?
+              <video
+                src={src}
+                aria-hidden="true"
+                muted
+                loop
+                playsInline
+                autoPlay
+                preload="metadata"
+                className="absolute inset-0 h-full w-full object-cover"
+              /> : null}
           </div>
         </div>
       </div>
@@ -332,20 +348,76 @@ function BlurBackdrop({ src, title }: { src: string; title: string }) {
   );
 }
 
-function BackgroundLayer({ src, title, onImageLoad }: {
+function AssetBackground({
+                           src,
+                           title,
+                           assetType,
+                           onDimensions,
+                         }: {
   src: string;
   title: string;
-  onImageLoad?: (dims: { w: number; h: number }) => void;
+  assetType: AssetType;
+  onDimensions?: (dims: { w: number; h: number }) => void;
 }) {
   const [isLoaded, setIsLoaded] = useState(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
+  useEffect(() => {
+    setIsLoaded(false);
+  }, [src, assetType]);
+
+  useEffect(() => {
+    if (assetType !== 'video') return;
+
+    const video = videoRef.current;
+    if (!video) return;
+
+    let isCancelled = false;
+
+    const handleLoadedMetadata = () => {
+      if (isCancelled) return;
+      onDimensions?.({ w: video.videoWidth, h: video.videoHeight });
+    };
+
+    const handleCanPlay = () => {
+      if (isCancelled) return;
+      setIsLoaded(true);
+    };
+
+    const handleError = () => {
+      if (isCancelled) return;
+      setIsLoaded(true);
+    };
+
+    video.addEventListener('loadedmetadata', handleLoadedMetadata);
+    video.addEventListener('canplay', handleCanPlay);
+    video.addEventListener('loadeddata', handleCanPlay);
+    video.addEventListener('error', handleError);
+
+    video.load();
+    // Ensure metadata is loaded even if autoplay is blocked
+    const playPromise = video.play();
+    if (playPromise && typeof playPromise.catch === 'function') {
+      playPromise.catch(() => {
+        // Autoplay might be blocked; we still consider metadata events
+      });
+    }
+
+    return () => {
+      isCancelled = true;
+      video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      video.removeEventListener('canplay', handleCanPlay);
+      video.removeEventListener('loadeddata', handleCanPlay);
+      video.removeEventListener('error', handleError);
+      video.pause();
+    };
+  }, [assetType, onDimensions, src]);
 
   return (
     <div className="absolute z-1 w-full h-full">
       <div className="relative w-full h-full">
-        {!isLoaded && (
-          <Skeleton className="absolute inset-0 rounded-none" />
-        )}
-        <Image
+        {!isLoaded && <Skeleton className="absolute inset-0 rounded-none" />}
+        {assetType === 'image' ? <Image
           alt={title}
           src={src}
           fill
@@ -353,13 +425,23 @@ function BackgroundLayer({ src, title, onImageLoad }: {
           sizes="(max-width:640px) 100vw, (max-width:1024px) 50vw, 33vw"
           loading="lazy"
           unoptimized
-          onLoad={(e) => {
-            const img = e.currentTarget;
+          onLoad={(event) => {
+            const img = event.currentTarget;
             setIsLoaded(true);
-            onImageLoad?.({ w: img.naturalWidth, h: img.naturalHeight });
+            onDimensions?.({ w: img.naturalWidth, h: img.naturalHeight });
           }}
           onError={() => setIsLoaded(true)}
-        />
+        /> : assetType === 'video' ?
+          <video
+            ref={videoRef}
+            src={src}
+            muted
+            loop
+            playsInline
+            autoPlay
+            preload="metadata"
+            className="absolute inset-0 h-full w-full object-cover"
+          /> : null}
       </div>
     </div>
   );
@@ -381,7 +463,8 @@ function TopBar({ posterId, status, scheduledAt, deleteAt, fileMime, fileSize, s
         <StatusBadgesContent status={status} scheduledAt={scheduledAt} deleteAt={deleteAt} truncateRange />
       </div>
       <div className="flex items-center gap-2 pointer-events-auto">
-        <TopRightActions posterId={posterId} fileMime={fileMime} fileSize={fileSize} src={src} status={status} dims={dims} />
+        <TopRightActions posterId={posterId} fileMime={fileMime} fileSize={fileSize} src={src} status={status}
+                         dims={dims} />
       </div>
     </div>
   );
@@ -396,6 +479,7 @@ function BottomOverlay({
                          status,
                          createdAt,
                          updatedAt,
+                         assetType,
                        }: {
   src: string;
   title: string;
@@ -405,6 +489,7 @@ function BottomOverlay({
   status: PosterStatus;
   createdAt: Date;
   updatedAt: Date;
+  assetType: AssetType;
 }) {
   return (
     <div className="absolute z-3 w-full h-full flex items-end">
@@ -421,7 +506,7 @@ function BottomOverlay({
             </div>
           )}
         </div>
-        <BlurBackdrop src={src} title={title} />
+        <BlurBackdrop src={src} title={title} assetType={assetType} />
       </div>
     </div>
   );
@@ -442,14 +527,24 @@ export function PosterCard({ poster }: { poster: PosterPossiblyWithCreator; }) {
   } = poster;
 
   const src = `/api/posters/${poster.id}`;
-  const [imageDims, setImageDims] = useState<{ w: number; h: number } | null>(null);
+  const assetType = getAssetType(fileMime);
+  const [assetDims, setAssetDims] = useState<{ w: number; h: number } | null>(null);
+
+  useEffect(() => {
+    setAssetDims(null);
+  }, [assetType, src]);
+
+  const handleAssetDimensions = useCallback((dims: { w: number; h: number }) => {
+    setAssetDims(dims);
+  }, []);
 
   return (
     <div className="relative w-full h-full aspect-square overflow-hidden z-2 rounded-xl">
-      <BackgroundLayer
+      <AssetBackground
         src={src}
         title={title}
-        onImageLoad={(d) => setImageDims(d)}
+        assetType={assetType}
+        onDimensions={handleAssetDimensions}
       />
       <BottomOverlay
         src={src}
@@ -460,6 +555,7 @@ export function PosterCard({ poster }: { poster: PosterPossiblyWithCreator; }) {
         status={status}
         createdAt={createdAt}
         updatedAt={updatedAt}
+        assetType={assetType}
       />
       <TopBar
         posterId={poster.id}
@@ -469,7 +565,7 @@ export function PosterCard({ poster }: { poster: PosterPossiblyWithCreator; }) {
         fileMime={fileMime}
         fileSize={fileSize}
         src={src}
-        dims={imageDims}
+        dims={assetDims}
       />
     </div>
   );

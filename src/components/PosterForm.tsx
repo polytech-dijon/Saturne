@@ -8,7 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import Image from 'next/image';
-import { XIcon } from 'lucide-react';
+import { AlertTriangle, XIcon } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,8 +18,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { DateTimePicker } from '@/components/DateTimePicker';
 import { MAX_UPLOAD_MB, clientPosterUpdateSchema } from '@/lib/zod';
+import { toDurationParts } from '@/lib/utils';
+import { Alert, AlertTitle } from '@/components/ui/alert';
 
 const DEFAULT_REDIRECT = '/dashboard/posters';
+const MAX_POSTER_DURATION_SECONDS = 120;
 
 export type PosterFormValues = z.input<typeof clientPosterUpdateSchema>;
 export type PosterFormResult = z.output<typeof clientPosterUpdateSchema>;
@@ -54,6 +57,17 @@ export type PosterFormProps = {
 
 function formatMegabytes(bytes: number) {
   return (bytes / (1024 * 1024)).toFixed(1);
+}
+
+function formatHumanDuration(seconds: number) {
+  if (!Number.isFinite(seconds)) return 'inconnue';
+  if (seconds < 1) return `${seconds.toFixed(1)} s`;
+  const durationParts = toDurationParts(seconds);
+  if (!durationParts) return 'inconnue';
+  const tokens: string[] = [];
+  if (durationParts.minutes > 0) tokens.push(`${durationParts.minutes} min`);
+  if (durationParts.seconds > 0 || durationParts.minutes === 0) tokens.push(`${durationParts.seconds} s`);
+  return tokens.join(' ');
 }
 
 function inferAssetType(mime: string | undefined): PosterFormExistingAsset['type'] {
@@ -95,8 +109,10 @@ export function PosterForm({
 
   const watchedTitle = form.watch('title') as string | undefined;
   const watchedFile = form.watch('file') as File | null | undefined;
+  const watchedDisplayDuration = form.watch('displayDuration') as number | undefined;
 
   const [filePreviewUrl, setFilePreviewUrl] = useState<string | null>(null);
+  const [videoDuration, setVideoDuration] = useState<number | null>(null);
 
   useEffect(() => {
     if (watchedFile instanceof File) {
@@ -117,6 +133,45 @@ export function PosterForm({
     ? inferAssetType(watchedFile.type)
     : existingAsset?.type ?? 'other';
 
+  useEffect(() => {
+    if (previewType !== 'video') {
+      setVideoDuration(null);
+    }
+  }, [previewType]);
+
+  useEffect(() => {
+    if (previewType !== 'video' || !previewUrl) return undefined;
+
+    let isCancelled = false;
+    const probe = document.createElement('video');
+    probe.preload = 'metadata';
+
+    const handleLoadedMetadata = () => {
+      if (isCancelled) return;
+      const duration = probe.duration;
+      if (Number.isFinite(duration)) {
+        setVideoDuration(duration);
+      }
+    };
+
+    const handleError = () => {
+      if (isCancelled) return;
+      setVideoDuration(null);
+    };
+
+    probe.addEventListener('loadedmetadata', handleLoadedMetadata);
+    probe.addEventListener('error', handleError);
+    probe.src = previewUrl;
+    probe.load();
+
+    return () => {
+      isCancelled = true;
+      probe.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      probe.removeEventListener('error', handleError);
+      probe.src = '';
+    };
+  }, [previewType, previewUrl]);
+
   const missingRequirements: string[] = [];
   if (!watchedTitle?.trim()) missingRequirements.push('Ajoutez un titre');
   if (requireFile && !(watchedFile instanceof File)) missingRequirements.push('Téléversez un média');
@@ -127,6 +182,13 @@ export function PosterForm({
   const effectiveProcessingLabel = processingLabel ?? 'Enregistrement…';
   const effectiveRedirect = redirectTo ?? DEFAULT_REDIRECT;
   const effectiveCancelHref = cancelHref ?? effectiveRedirect;
+
+  let warning: string | null = null;
+  if (videoDuration && videoDuration > MAX_POSTER_DURATION_SECONDS) {
+    warning = `La vidéo dure ${formatHumanDuration(videoDuration)} alors que la durée maximale d’un poster est de ${formatHumanDuration(MAX_POSTER_DURATION_SECONDS)}. Coupez la vidéo ou raccourcissez-la pour respecter la limite.`;
+  } else if (videoDuration && typeof watchedDisplayDuration === 'number' && Math.abs(watchedDisplayDuration - videoDuration) > 0.5) {
+    warning = `La vidéo dure ${formatHumanDuration(videoDuration)} mais la durée d’affichage est réglée sur ${formatHumanDuration(watchedDisplayDuration)}. Ajustez la durée d’affichage pour éviter une coupure.`;
+  }
 
   const handleSubmit = form.handleSubmit((values) => {
     startTransition(async () => {
@@ -269,6 +331,7 @@ export function PosterForm({
                   const handleClearFile = () => {
                     field.onChange(null);
                     if (fileInputRef.current) fileInputRef.current.value = '';
+                    setVideoDuration(null);
                   };
 
                   return (
@@ -291,6 +354,7 @@ export function PosterForm({
                           }}
                           onChange={(event) => {
                             const nextFile = event.target.files?.[0] ?? null;
+                            setVideoDuration(null);
                             field.onChange(nextFile);
                           }}
                         />
@@ -333,13 +397,26 @@ export function PosterForm({
                             ) : (
                               <video
                                 src={previewUrl}
-                                controls
+                                loop
+                                muted
+                                autoPlay
                                 className="h-full w-full object-contain"
+                                onLoadedMetadata={(event) => {
+                                  const duration = event.currentTarget.duration;
+                                  if (Number.isFinite(duration)) {
+                                    setVideoDuration(duration);
+                                  }
+                                }}
                               />
                             )}
                           </div>
                         </div>
                       ) : null}
+                      {warning &&
+                        <Alert variant="destructive" className="text-amber-500">
+                          <AlertTriangle aria-hidden="true" />
+                          <AlertTitle className="line-clamp-none">{warning}</AlertTitle>
+                        </Alert>}
                       <FormMessage />
                     </FormItem>
                   );
